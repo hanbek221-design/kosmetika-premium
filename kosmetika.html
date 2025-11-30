@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <title>Beauty Store — Kosmetika Do‘koni</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark light">
 
   <!-- Google Font -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -19,16 +20,26 @@
       --text:#f9fafb;
       --muted:#9ca3af;
       --card:#111827;
-      --radius-xl:18px;
-      --radius-lg:14px;
-      --shadow-sm:0 8px 20px rgba(0,0,0,0.35);
+      --border-soft:rgba(148,163,184,0.4);
     }
+    body.theme-light{
+      --bg:#f3f4f6;
+      --bg-soft:#e5e7eb;
+      --accent:#ec4899;
+      --accent-soft:#f9a8d4;
+      --accent-2:#f97316;
+      --text:#020617;
+      --muted:#4b5563;
+      --card:#ffffff;
+      --border-soft:rgba(148,163,184,0.8);
+    }
+
     body{
       font-family:"Poppins",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-      background:radial-gradient(circle at top,#1e1b4b 0,#020617 45%,#020617 100%);
+      background:radial-gradient(circle at top,#1e1b4b 0,var(--bg) 45%,var(--bg) 100%);
       color:var(--text);
       min-height:100vh;
-      padding-bottom:120px;
+      padding-bottom:130px;
     }
     a{text-decoration:none;color:inherit}
 
@@ -37,11 +48,15 @@
       position:sticky;top:0;z-index:20;
       backdrop-filter:blur(18px);
       background:linear-gradient(90deg,rgba(15,23,42,0.96),rgba(24,24,27,0.85));
-      border-bottom:1px solid rgba(148,163,184,0.25);
-      padding:10px 16px;
+      border-bottom:1px solid var(--border-soft);
+      padding:10px 12px;
       display:flex;
       align-items:center;
       justify-content:space-between;
+      gap:8px;
+    }
+    body.theme-light .header{
+      background:linear-gradient(90deg,rgba(249,250,251,0.96),rgba(229,231,235,0.96));
     }
     .logo-wrap{
       display:flex;align-items:center;gap:8px;
@@ -59,6 +74,11 @@
       border-radius:999px;
       font-weight:700;
       font-size:14px;
+      color:#f9fafb;
+    }
+    body.theme-light .logo-circle span{
+      background:#f9fafb;
+      color:#111827;
     }
     .logo-text{
       display:flex;flex-direction:column;
@@ -66,20 +86,43 @@
     }
     .logo-text strong{font-size:15px;}
     .logo-text small{font-size:11px;color:var(--muted);}
+    .header-right{
+      display:flex;align-items:center;gap:6px;
+    }
     .header-pill{
-      padding:6px 10px;
+      padding:6px 9px;
       border-radius:999px;
       border:1px solid rgba(248,250,252,0.18);
-      font-size:11px;
+      font-size:10px;
       display:flex;
       align-items:center;
       gap:6px;
       background:linear-gradient(90deg,rgba(15,23,42,0.9),rgba(30,64,175,0.9));
+      color:#e5e7eb;
+    }
+    body.theme-light .header-pill{
+      background:linear-gradient(90deg,rgba(255,255,255,0.96),rgba(239,246,255,0.96));
+      border-color:rgba(148,163,184,0.6);
+      color:#111827;
+    }
+
+    .theme-toggle{
+      border:none;
+      border-radius:999px;
+      padding:6px 9px;
+      font-size:14px;
+      cursor:pointer;
+      background:rgba(15,23,42,0.9);
+      color:#e5e7eb;
+      display:flex;align-items:center;gap:4px;
+    }
+    body.theme-light .theme-toggle{
+      background:#e5e7eb;
+      color:#111827;
     }
 
     .hero{
       padding:14px 16px 4px;
-      background:radial-gradient(circle at top left,#4c1d95 0,#020617 45%);
     }
     .hero-top{
       display:flex;
@@ -116,6 +159,10 @@
       display:flex;align-items:center;gap:4px;
       color:#e5e7eb;
     }
+    body.theme-light .badge{
+      background:#ffffff;
+      color:#111827;
+    }
     .hero-tag{
       font-size:11px;
       margin-top:10px;
@@ -130,18 +177,23 @@
     .hero-tag span{font-weight:600;font-size:11px;}
 
     .hero-card{
-      min-width:130px;
-      border-radius:var(--radius-xl);
+      min-width:140px;
+      border-radius:18px;
       padding:8px;
       background:radial-gradient(circle at top,#ff80b5,#312e81 45%,#020617 100%);
-      box-shadow:var(--shadow-sm);
+      box-shadow:0 8px 20px rgba(0,0,0,0.55);
       text-align:right;
       font-size:11px;
+    }
+    body.theme-light .hero-card{
+      background:radial-gradient(circle at top,#fecaca,#bfdbfe 45%,#eef2ff 100%);
+      color:#111827;
     }
     .hero-card h3{
       font-size:14px;margin-bottom:4px;
     }
     .hero-card p{margin:0;color:#e5e7eb;}
+    body.theme-light .hero-card p{color:#111827;}
     .hero-card .price{
       margin-top:6px;
       font-size:13px;
@@ -170,6 +222,10 @@
       transition:0.18s ease;
       white-space:nowrap;
     }
+    body.theme-light .chip{
+      background:#ffffff;
+      color:#111827;
+    }
     .chip.active{
       background:linear-gradient(120deg,#f97316,#ec4899);
       border-color:transparent;
@@ -180,7 +236,7 @@
 
     /* PRODUCT GRID */
     .products-wrap{
-      padding:8px 10px 90px;
+      padding:8px 10px 100px;
     }
     .products-grid{
       display:grid;
@@ -192,20 +248,28 @@
       body{padding-bottom:130px;}
     }
     .product-card{
-      background:linear-gradient(145deg,#020617,#0b1021);
-      border-radius:var(--radius-lg);
+      background:linear-gradient(145deg,#020617,var(--card));
+      border-radius:14px;
       border:1px solid rgba(31,41,55,0.9);
       padding:8px;
       position:relative;
       overflow:hidden;
       box-shadow:0 10px 25px rgba(0,0,0,0.55);
     }
+    body.theme-light .product-card{
+      background:#ffffff;
+      border-color:rgba(209,213,219,0.9);
+      box-shadow:0 12px 28px rgba(148,163,184,0.6);
+    }
     .product-top{
       position:relative;
-      border-radius:var(--radius-lg);
+      border-radius:14px;
       padding:10px;
       background:radial-gradient(circle at top,#1d4ed8,#020617 55%);
       overflow:hidden;
+    }
+    body.theme-light .product-top{
+      background:radial-gradient(circle at top,#bfdbfe,#e5e7eb 55%);
     }
     .product-emoji{
       font-size:26px;
@@ -219,6 +283,11 @@
       background:rgba(15,23,42,0.9);
       border:1px solid rgba(148,163,184,0.7);
       display:flex;align-items:center;gap:4px;
+      color:#e5e7eb;
+    }
+    body.theme-light .product-img-tag{
+      background:#ffffff;
+      color:#111827;
     }
     .product-sale{
       position:absolute;
@@ -229,6 +298,7 @@
       transform:rotate(-14deg);
       font-size:10px;
       font-weight:700;
+      color:#111827;
     }
     .product-body{
       margin-top:6px;
@@ -285,6 +355,12 @@
       display:inline-flex;
       align-items:center;
       gap:4px;
+      color:#e5e7eb;
+    }
+    body.theme-light .tag-mini{
+      background:#f9fafb;
+      border-color:rgba(209,213,219,0.9);
+      color:#111827;
     }
 
     /* CART BAR */
@@ -292,10 +368,14 @@
       position:fixed;
       bottom:0;left:0;right:0;
       background:radial-gradient(circle at top,#1d2538,#020617 55%);
-      border-top:1px solid rgba(148,163,184,0.4);
+      border-top:1px solid var(--border-soft);
       padding:10px 12px 14px;
       z-index:30;
       box-shadow:0 -10px 25px rgba(0,0,0,0.75);
+    }
+    body.theme-light .cart-bar{
+      background:radial-gradient(circle at top,#e5e7eb,#f9fafb 55%);
+      box-shadow:0 -10px 25px rgba(148,163,184,0.8);
     }
     .cart-top-row{
       display:flex;
@@ -313,6 +393,11 @@
       display:flex;align-items:center;gap:6px;
       font-size:11px;
       color:#e5e7eb;
+    }
+    body.theme-light .cart-pill{
+      background:#ffffff;
+      border-color:rgba(209,213,219,0.9);
+      color:#111827;
     }
     .cart-main-btn{
       margin-top:2px;
@@ -336,13 +421,176 @@
       font-weight:500;
       opacity:.9;
     }
+    .cart-view-link{
+      margin-top:6px;
+      width:100%;
+      border:none;
+      background:transparent;
+      color:var(--muted);
+      font-size:11px;
+      text-align:center;
+      cursor:pointer;
+      text-decoration:underline;
+      text-decoration-style:dotted;
+    }
+
+    /* CART SHEET */
+    .sheet-overlay{
+      position:fixed;
+      inset:0;
+      background:rgba(15,23,42,0.7);
+      opacity:0;
+      pointer-events:none;
+      transition:opacity .25s ease;
+      z-index:35;
+    }
+    .sheet-overlay.show{
+      opacity:1;
+      pointer-events:auto;
+    }
+    .cart-sheet{
+      position:fixed;
+      left:0;right:0;bottom:0;
+      background:var(--bg-soft);
+      border-radius:18px 18px 0 0;
+      border-top:1px solid var(--border-soft);
+      max-height:70vh;
+      transform:translateY(100%);
+      transition:transform .25s ease;
+      z-index:40;
+      display:flex;
+      flex-direction:column;
+    }
+    body.theme-light .cart-sheet{
+      background:#f9fafb;
+    }
+    .cart-sheet.open{
+      transform:translateY(0);
+    }
+    .cart-sheet-header{
+      padding:10px 14px;
+      border-bottom:1px solid var(--border-soft);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      font-size:13px;
+    }
+    .cart-sheet-header h3{
+      font-size:14px;
+    }
+    .cart-sheet-header button{
+      border:none;
+      background:transparent;
+      font-size:18px;
+      cursor:pointer;
+      color:var(--muted);
+    }
+    .cart-sheet-body{
+      padding:8px 14px 4px;
+      overflow-y:auto;
+      max-height:46vh;
+    }
+    .cart-sheet-footer{
+      padding:10px 14px 14px;
+      border-top:1px solid var(--border-soft);
+    }
+    .cart-sheet-footer-top{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      font-size:13px;
+      margin-bottom:8px;
+    }
+    .cart-sheet-footer-top strong{
+      font-size:14px;
+    }
+    .cart-sheet-btn{
+      width:100%;
+      border:none;
+      border-radius:999px;
+      padding:11px 10px;
+      background:linear-gradient(120deg,#22c55e,#16a34a);
+      color:#022c22;
+      font-size:14px;
+      font-weight:700;
+      cursor:pointer;
+      box-shadow:0 10px 25px rgba(34,197,94,0.5);
+    }
+    .cart-empty{
+      font-size:12px;
+      color:var(--muted);
+      text-align:center;
+      padding:16px 0;
+    }
+
+    .cart-item-row{
+      padding:8px 0;
+      border-bottom:1px dashed rgba(75,85,99,0.6);
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      font-size:12px;
+    }
+    .cart-item-main{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+    }
+    .cart-item-name{
+      font-weight:600;
+    }
+    .cart-item-meta{
+      font-size:11px;
+      color:var(--muted);
+    }
+    .cart-item-actions{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:6px;
+      font-size:11px;
+    }
+    .qty-control{
+      display:flex;
+      align-items:center;
+      border-radius:999px;
+      border:1px solid rgba(75,85,99,0.8);
+      overflow:hidden;
+    }
+    .qty-control button{
+      border:none;
+      background:rgba(15,23,42,0.95);
+      color:#e5e7eb;
+      width:24px;height:22px;
+      cursor:pointer;
+      font-size:14px;
+    }
+    body.theme-light .qty-control button{
+      background:#e5e7eb;
+      color:#111827;
+    }
+    .qty-control span{
+      padding:0 8px;
+      min-width:22px;
+      text-align:center;
+    }
+    .cart-item-total{
+      font-weight:600;
+    }
+    .cart-remove{
+      border:none;
+      background:transparent;
+      color:var(--muted);
+      cursor:pointer;
+      font-size:14px;
+    }
 
     /* TOAST */
     .toast{
       position:fixed;
       left:50%;
       transform:translateX(-50%);
-      bottom:90px;
+      bottom:110px;
       background:rgba(15,23,42,0.98);
       border-radius:999px;
       padding:6px 12px;
@@ -355,10 +603,11 @@
       opacity:0;
       pointer-events:none;
       transition:opacity .2s ease,transform .2s ease;
+      z-index:50;
     }
     .toast.show{
       opacity:1;
-      transform:translate(-50%, -4px);
+      transform:translate(-50%, -2px);
       pointer-events:auto;
     }
   </style>
@@ -374,12 +623,17 @@
       </div>
       <div class="logo-text">
         <strong>Beauty Store</strong>
-        <small>Premium kosmetika dokoni</small>
+        <small>Premium kosmetika do‘koni</small>
       </div>
     </div>
-    <div class="header-pill">
-      <span>🚚</span>
-      <span>150 ming so‘mdan bepul yetkazib berish</span>
+    <div class="header-right">
+      <div class="header-pill">
+        <span>🚚</span>
+        <span>150 000 so‘mdan bepul yetkazib berish</span>
+      </div>
+      <button class="theme-toggle" id="themeToggleBtn" type="button">
+        🌙
+      </button>
     </div>
   </header>
 
@@ -400,7 +654,7 @@
           <div class="badge">💌 Telegram orqali buyurtma</div>
         </div>
         <div class="hero-tag">
-          <span>✨ “onatili_premium” orqali buyurtma</span>
+          <span>✨ @onatili_premium orqali buyurtma</span>
         </div>
       </div>
       <div class="hero-card">
@@ -439,17 +693,38 @@
         Jami: <strong id="cartTotal">0</strong> so‘m
       </div>
     </div>
-    <button class="cart-main-btn" onclick="sendOrder()">
+    <button class="cart-main-btn" type="button" onclick="toggleCartSheet(true)">
       <div>
-        <div>📩 Buyurtmani Telegramga yuborish</div>
+        <div>🧾 Savatni ko‘rish va buyurtma berish</div>
         <span class="small">
-          @onatili_premium ga tanlangan mahsulotlar ro‘yxati bilan xabar boradi
+          Tanlangan mahsulotlar ro‘yxatini tekshirib, Telegramga yuboring
         </span>
       </div>
-      <div>
-        <span style="font-size:18px;">›</span>
-      </div>
+      <div><span style="font-size:18px;">›</span></div>
     </button>
+    <button class="cart-view-link" type="button" onclick="toggleCartSheet(true)">
+      Savatni ochish / tahrirlash
+    </button>
+  </div>
+
+  <!-- CART SHEET -->
+  <div class="sheet-overlay" id="cartSheetOverlay" onclick="toggleCartSheet(false)"></div>
+
+  <div class="cart-sheet" id="cartSheet">
+    <div class="cart-sheet-header">
+      <h3>🛒 Savatingiz</h3>
+      <button type="button" onclick="toggleCartSheet(false)">✕</button>
+    </div>
+    <div class="cart-sheet-body" id="cartItems"></div>
+    <div class="cart-sheet-footer">
+      <div class="cart-sheet-footer-top">
+        <span>Umumiy summa:</span>
+        <strong id="cartSheetTotal">0</strong>
+      </div>
+      <button class="cart-sheet-btn" type="button" onclick="sendOrder()">
+        📩 Telegramga yuborish (@onatili_premium)
+      </button>
+    </div>
   </div>
 
   <!-- TOAST -->
@@ -503,6 +778,11 @@
   const cartCountEl = document.getElementById("cartCount");
   const cartTotalEl = document.getElementById("cartTotal");
   const toastEl = document.getElementById("toast");
+  const cartSheet = document.getElementById("cartSheet");
+  const cartSheetOverlay = document.getElementById("cartSheetOverlay");
+  const cartItemsEl = document.getElementById("cartItems");
+  const cartSheetTotalEl = document.getElementById("cartSheetTotal");
+  const themeToggleBtn = document.getElementById("themeToggleBtn");
 
   let activeCategory = "all";
   let cart = [];
@@ -516,8 +796,9 @@
     const filtered = products.filter(p =>
       activeCategory === "all" ? true : p.category === activeCategory
     );
-    filtered.forEach((p, idx)=>{
-      const globalIndex = products.indexOf(p); // umumiy indeks
+    filtered.forEach(p=>{
+      const globalIndex = products.indexOf(p);
+      const discount = p.oldPrice ? (100 - Math.round(p.price*100/p.oldPrice)) : null;
       productsGrid.innerHTML += `
         <article class="product-card">
           <div class="product-top">
@@ -525,7 +806,7 @@
             <div class="product-img-tag">
               <span>Beauty</span> <span>Pro</span>
             </div>
-            ${p.oldPrice ? `<div class="product-sale">- ${(100 - Math.round(p.price*100/p.oldPrice))}%</div>` : ``}
+            ${discount ? `<div class="product-sale">- ${discount}%</div>` : ``}
           </div>
           <div class="product-body">
             <div class="product-name">${p.name}</div>
@@ -562,7 +843,6 @@
 
   // Savatga qo‘shish
   function addToCart(index){
-    const item = products[index];
     const found = cart.find(c => c.index === index);
     if(found){
       found.qty += 1;
@@ -583,11 +863,80 @@
     });
     cartCountEl.textContent = totalCount;
     cartTotalEl.textContent = formatPrice(totalPrice);
+
+    // Agar savat oynasi ochiq bo'lsa, ichini ham yangilaymiz
+    if(cartSheet.classList.contains("open")){
+      renderCartItems();
+    }
   }
 
   function showToast(){
     toastEl.classList.add("show");
-    setTimeout(()=> toastEl.classList.remove("show"), 1000);
+    setTimeout(()=> toastEl.classList.remove("show"), 900);
+  }
+
+  // Savat oynasi
+  function toggleCartSheet(force){
+    const isOpen = cartSheet.classList.contains("open");
+    const next = typeof force === "boolean" ? force : !isOpen;
+    cartSheet.classList.toggle("open", next);
+    cartSheetOverlay.classList.toggle("show", next);
+    if(next){
+      renderCartItems();
+    }
+  }
+
+  function renderCartItems(){
+    if(cart.length === 0){
+      cartItemsEl.innerHTML = "<p class='cart-empty'>Savat hozircha bo‘sh 🙂</p>";
+      cartSheetTotalEl.textContent = "0 so‘m";
+      return;
+    }
+    let html = "";
+    let total = 0;
+    cart.forEach(c=>{
+      const p = products[c.index];
+      const lineTotal = p.price * c.qty;
+      total += lineTotal;
+      html += `
+        <div class="cart-item-row">
+          <div class="cart-item-main">
+            <div class="cart-item-name">${p.name}</div>
+            <div class="cart-item-meta">
+              ${formatPrice(p.price)} so‘m • ${p.category.toUpperCase()}
+            </div>
+          </div>
+          <div class="cart-item-actions">
+            <div class="qty-control">
+              <button onclick="changeQty(${c.index}, -1)">-</button>
+              <span>${c.qty}</span>
+              <button onclick="changeQty(${c.index}, 1)">+</button>
+            </div>
+            <div class="cart-item-total">${formatPrice(lineTotal)} so‘m</div>
+            <button class="cart-remove" onclick="removeFromCart(${c.index})">✕</button>
+          </div>
+        </div>
+      `;
+    });
+    cartItemsEl.innerHTML = html;
+    cartSheetTotalEl.textContent = formatPrice(total) + " so‘m";
+  }
+
+  function changeQty(productIndex, delta){
+    const item = cart.find(c => c.index === productIndex);
+    if(!item) return;
+    item.qty += delta;
+    if(item.qty <= 0){
+      cart = cart.filter(c=>c.index !== productIndex);
+    }
+    updateCartUI();
+    renderCartItems();
+  }
+
+  function removeFromCart(productIndex){
+    cart = cart.filter(c=>c.index !== productIndex);
+    updateCartUI();
+    renderCartItems();
   }
 
   // Telegramga yuborish
@@ -607,17 +956,40 @@
     text += "%0AUmumiy summa: " + formatPrice(totalPrice) + " so‘m%0A";
     text += "%0ATelefon raqamim: _______%0AManzil: _______";
 
-    const encoded = encodeURIComponent(text);
-    const url = "https://t.me/onatili_premium?text=" + encoded;
+    const url = "https://t.me/onatili_premium?text=" + text;
     window.location.href = url;
   }
 
-  // Dastlabki render
-  renderProducts();
+  // Tema (dark / light)
+  const THEME_KEY = "beauty_theme";
+
+  function applyTheme(theme){
+    document.body.classList.toggle("theme-light", theme === "light");
+    themeToggleBtn.textContent = theme === "light" ? "🌙" : "☀️";
+  }
+
+  function toggleTheme(){
+    const current = localStorage.getItem(THEME_KEY) || "dark";
+    const next = current === "dark" ? "light" : "dark";
+    localStorage.setItem(THEME_KEY, next);
+    applyTheme(next);
+  }
+
+  themeToggleBtn.addEventListener("click", toggleTheme);
+
+  // Dastlabki tema va mahsulotlar
+  (function init(){
+    const savedTheme = localStorage.getItem(THEME_KEY) || "dark";
+    applyTheme(savedTheme);
+    renderProducts();
+  })();
 
   // globalga funksiyalar
   window.addToCart = addToCart;
   window.sendOrder = sendOrder;
+  window.toggleCartSheet = toggleCartSheet;
+  window.changeQty = changeQty;
+  window.removeFromCart = removeFromCart;
 </script>
 
 </body>
