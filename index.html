@@ -4,6 +4,10 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>TestMaster — BUXORO_EDU (Cloud)</title>
+
+  <!-- Telegram WebApp SDK (tahlil linkni Telegram ichida ochish uchun) -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
   <style>
     :root{
       --grad1:#111827; --grad2:#0b1220;
@@ -60,6 +64,13 @@
     .btn.primary{background:linear-gradient(180deg, rgba(96,165,250,.35), rgba(96,165,250,.25)); border-color:#3b82f6}
     .btn.ghost{background:rgba(255,255,255,.04)}
     .btn.small{padding:7px 10px;font-size:13px}
+
+    /* NEW: Telegram tahlil tugmasi */
+    .btn.tg{
+      background:rgba(239,68,68,.12);
+      border-color:rgba(239,68,68,.35);
+    }
+
     .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
     .flex{display:flex;gap:10px;align-items:center}
     .space{flex:1}
@@ -95,6 +106,8 @@
     .focus-q{ outline:2px solid #60a5fa; border-color:#60a5fa; box-shadow:0 0 0 3px rgba(96,165,250,.25) }
     .my-row{ background: rgba(96,165,250,.15); }
     .adm-qrow{ margin:8px 0; padding:12px; border:1px dashed var(--border); border-radius:14px; }
+
+    .muted{color:var(--muted)}
   </style>
 </head>
 <body>
@@ -158,6 +171,11 @@
             <label>Test nomi</label><input id="tName" />
             <label style="margin-top:10px">Maxsus kod</label><input id="tCode" />
             <label style="margin-top:10px">Savollar soni</label><input id="tCount" type="number" value="5" min="1" />
+
+            <!-- NEW: Telegram tahlil linki -->
+            <label style="margin-top:10px">Telegram tahlil linki (ixtiyoriy)</label>
+            <input id="tAnalysisLink" placeholder="https://t.me/c/3086001686/2/17260" />
+
             <div class="flex" style="margin-top:10px">
               <button class="btn" id="btnBuildGrid">Javob panellari</button>
               <button class="btn primary" id="btnSaveTest">Saqlash</button>
@@ -253,15 +271,42 @@
   const app = initializeApp(firebaseConfig);
   const db  = getFirestore(app);
 
+  /* ——— Telegram init (ixtiyoriy) ——— */
+  try {
+    const tg = window.Telegram?.WebApp;
+    if (tg) tg.ready();
+  } catch(e){}
+
   /* ——— Helpers ——— */
   const $ = (id)=>document.getElementById(id);
   function show(id,on=true){ const el=$(id); if(el) el.classList.toggle('hidden', !on) }
   function escapeHtml(s){ return (s||'').toString().replace(/[&<>"]/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])) }
 
+  // NEW: Telegram tahlil link helperlari
+  function normalizeTgLink(u){
+    let url = (u||'').trim();
+    if(!url) return '';
+    if(url.startsWith('t.me/')) url = 'https://' + url;
+    return url;
+  }
+  function isValidTgLink(url){
+    if(!url) return true;
+    return /^https:\/\/t\.me\//i.test(url);
+  }
+  function openTgLink(url){
+    if(!url) return;
+    const tg = window.Telegram?.WebApp;
+    if(tg && typeof tg.openTelegramLink === 'function'){
+      tg.openTelegramLink(url);
+      return;
+    }
+    window.open(url, '_blank', 'noopener,noreferrer');
+  }
+
   /* ——— Qidiruv klaviatura holati ——— */
   let __searchItems = [];
   let __searchIndex = -1;
-  let __searchTimer = null; /* <- oldingi kodingizda yo‘q edi, qo‘shildi */
+  let __searchTimer = null;
   function setActiveCard(idx){
     __searchIndex = idx;
     document.querySelectorAll('#testsList .card').forEach(el=> el.classList.remove('active-card'));
@@ -290,10 +335,24 @@
 
   /* ——— DB qatlam (users yo‘q) ——— */
   const DB = {
-    async saveTest({name, code, count, key}){
-      await setDoc(doc(db,'tests', code), { name, code, count, key, updatedAt: Date.now() });
+    async saveTest({name, code, count, key, analysisLink}){
+      await setDoc(doc(db,'tests', code), {
+        name, code, count, key,
+        analysisLink: analysisLink || '',
+        updatedAt: Date.now()
+      });
       CACHE.tests=null;
     },
+
+    // NEW: faqat tahlil linkni merge bilan yangilash (key/count buzilmaydi)
+    async setAnalysisLink(code, analysisLink){
+      await setDoc(doc(db,'tests', code), {
+        analysisLink: analysisLink || '',
+        updatedAt: Date.now()
+      }, { merge:true });
+      CACHE.tests=null;
+    },
+
     async allTests(){ return cachedAllTests(); },
 
     async getAttempts(code, login){
@@ -407,13 +466,21 @@
     const name = ($('tName').value||'').trim();
     const code = ($('tCode').value||'').trim();
     const count = Math.max(1, parseInt(($('tCount').value||'1'),10));
+
+    // NEW
+    const analysisLink = normalizeTgLink(($('tAnalysisLink').value||'').trim());
+    if(!isValidTgLink(analysisLink)) return alert('Telegram link xato. Masalan: https://t.me/c/3086001686/2/17260');
+
     if(!name || !code) return alert('Nom va kodni kiriting');
     if(!ADMIN_KEY.length || ADMIN_KEY.length!==count || ADMIN_KEY.some(v=>!v)){
       return alert('Har bir savol uchun A/B/C/D tanlang. Avval "Javob panellari" ni tuzing.');
     }
-    await DB.saveTest({ name, code, count, key: ADMIN_KEY.slice() });
+
+    await DB.saveTest({ name, code, count, key: ADMIN_KEY.slice(), analysisLink });
     alert('✅ Test saqlandi');
-    $('tName').value=''; $('tCode').value=''; $('tCount').value=5; $('answerGrid').innerHTML=''; ADMIN_KEY=[];
+
+    $('tName').value=''; $('tCode').value=''; $('tCount').value=5; $('tAnalysisLink').value='';
+    $('answerGrid').innerHTML=''; ADMIN_KEY=[];
     await renderAdminLists();
   }
   $('btnSaveTest').addEventListener('click', saveTest);
@@ -429,26 +496,59 @@
     const tbox = $('adminTests'); tbox.innerHTML='';
     const tests = await DB.allTests();
     if(!tests.length){ tbox.innerHTML = '<div class="muted">Testlar yo‘q</div>'; return; }
+
     for(const t of tests){
       const res = await DB.getResults(t.code);
       const participants = res.length;
+
       const div = document.createElement('div'); div.className='card'; div.style.margin='6px 0';
+
       div.innerHTML = `
         <div class="flex">
           <strong>${escapeHtml(t.name)}</strong>
           <div class="space"></div>
           <span class="pill">kod: ${escapeHtml(t.code)} • ${t.count} savol • 👥 ${participants} ta</span>
         </div>
-        <div class="flex" style="margin-top:8px">
+
+        <div class="flex" style="margin-top:8px;flex-wrap:wrap">
           <button class="btn" data-act="view">Natijalar</button>
           <button class="btn" data-act="del">O'chirish</button>
           <button class="btn" data-act="tg">Hisobot nusxasi</button>
+          <button class="btn" data-act="setLink">Tahlil link</button>
           <div class="space"></div>
-        </div>`;
-      const [btnView, btnDel, btnTg] = div.querySelectorAll('button');
-      btnView.addEventListener('click', ()=> viewResults(t.code));
-      btnDel.addEventListener('click', ()=> adminDeleteTest(t.code, btnDel));
-      btnTg.addEventListener('click', ()=> adminTgReport(t.code));
+        </div>
+
+        ${t.analysisLink ? `
+          <div class="flex" style="margin-top:10px;flex-wrap:wrap">
+            <span class="pill">Tahlil biriktirilgan</span>
+            <div class="space"></div>
+            <button class="btn tg" data-act="openLink">Test tahlilini ko‘ring</button>
+          </div>` : `
+          <div class="muted" style="margin-top:10px;font-size:13px">
+            Tahlil link qo‘shilmagan (xohlasangiz “Tahlil link” tugmasi orqali qo‘shing).
+          </div>`
+        }
+      `;
+
+      div.querySelector('[data-act="view"]').addEventListener('click', ()=> viewResults(t.code));
+      div.querySelector('[data-act="del"]').addEventListener('click', (e)=> adminDeleteTest(t.code, e.target));
+      div.querySelector('[data-act="tg"]').addEventListener('click', ()=> adminTgReport(t.code));
+
+      // NEW: tahlil linkni qo‘shish/yangilash
+      div.querySelector('[data-act="setLink"]').addEventListener('click', async ()=>{
+        const cur = t.analysisLink || '';
+        const next = prompt('Telegram tahlil linkini kiriting:', cur);
+        if(next === null) return;
+        const normalized = normalizeTgLink(next);
+        if(!isValidTgLink(normalized)) return alert('Telegram link xato. Masalan: https://t.me/c/3086001686/2/17260');
+        await DB.setAnalysisLink(t.code, normalized);
+        alert('✅ Tahlil link saqlandi');
+        await drawTestsListForAdmin();
+      });
+
+      const openBtn = div.querySelector('[data-act="openLink"]');
+      if(openBtn) openBtn.addEventListener('click', ()=> openTgLink(t.analysisLink));
+
       tbox.appendChild(div);
     }
   }
@@ -529,15 +629,27 @@
       const card = document.createElement('div'); card.className='card'; card.id = 'srch_'+i; card.style.margin='6px 0';
       card.innerHTML = `
         <div class="flex"><strong>${escapeHtml(t.name)}</strong><div class="space"></div><span class="pill">${t.count} savol</span></div>
-        <div class="flex" style="margin-top:10px">
-          <button class="btn primary">Testni ishlash</button>
-          <button class="btn">Natijalar</button>
+        <div class="flex" style="margin-top:10px;flex-wrap:wrap">
+          <button class="btn primary" data-act="start">Testni ishlash</button>
+          <button class="btn" data-act="res">Natijalar</button>
           <div class="space"></div>
           <span class="tag">kod: ${escapeHtml(t.code)}</span>
-        </div>`;
-      const [btn1, btn2] = card.querySelectorAll('button');
-      btn1.addEventListener('click', ()=> startTest(t.code));
-      btn2.addEventListener('click', ()=> viewResults(t.code));
+        </div>
+
+        ${t.analysisLink ? `
+        <div class="flex" style="margin-top:10px;flex-wrap:wrap">
+          <span class="pill">Tahlil</span>
+          <div class="space"></div>
+          <button class="btn tg" data-act="analysis">Test tahlilini ko‘ring</button>
+        </div>` : ``}
+      `;
+
+      card.querySelector('[data-act="start"]').addEventListener('click', ()=> startTest(t.code));
+      card.querySelector('[data-act="res"]').addEventListener('click', ()=> viewResults(t.code));
+
+      const a = card.querySelector('[data-act="analysis"]');
+      if(a) a.addEventListener('click', ()=> openTgLink(t.analysisLink));
+
       frag.appendChild(card);
     });
     box.appendChild(frag); setActiveCard(__searchIndex);
@@ -556,15 +668,27 @@
       const card = document.createElement('div'); card.className='card'; card.id='srch_'+i; card.style.margin='6px 0';
       card.innerHTML = `
         <div class="flex"><strong>${escapeHtml(t.name)}</strong><div class="space"></div><span class="pill">${t.count} savol</span></div>
-        <div class="flex" style="margin-top:10px">
-          <button class="btn primary">Testni ishlash</button>
-          <button class="btn">Natijalar</button>
+        <div class="flex" style="margin-top:10px;flex-wrap:wrap">
+          <button class="btn primary" data-act="start">Testni ishlash</button>
+          <button class="btn" data-act="res">Natijalar</button>
           <div class="space"></div>
           <span class="tag">kod: ${escapeHtml(t.code)}</span>
-        </div>`;
-      const [btn1, btn2] = card.querySelectorAll('button');
-      btn1.addEventListener('click', ()=> startTest(t.code));
-      btn2.addEventListener('click', ()=> viewResults(t.code));
+        </div>
+
+        ${t.analysisLink ? `
+        <div class="flex" style="margin-top:10px;flex-wrap:wrap">
+          <span class="pill">Tahlil</span>
+          <div class="space"></div>
+          <button class="btn tg" data-act="analysis">Test tahlilini ko‘ring</button>
+        </div>` : ``}
+      `;
+
+      card.querySelector('[data-act="start"]').addEventListener('click', ()=> startTest(t.code));
+      card.querySelector('[data-act="res"]').addEventListener('click', ()=> viewResults(t.code));
+
+      const a = card.querySelector('[data-act="analysis"]');
+      if(a) a.addEventListener('click', ()=> openTgLink(t.analysisLink));
+
       frag.appendChild(card);
     });
     box.appendChild(frag);
@@ -701,6 +825,23 @@
     const mine = justMade || (SESSION.login ? await DB.bestOfUser(code, SESSION.login) : null);
     if(mine){ dw.innerHTML = renderDetail(mine); __lastTgText = makeTgText(t, mine); }
     else { dw.innerHTML = '<div class="muted">O‘zingizning oxirgi urinish tafsilotlari ko‘rinmadi.</div>'; __lastTgText = ''; }
+
+    // NEW: Natijada ham tahlil tugmasi chiqsin
+    if(t.analysisLink){
+      const block = document.createElement('div');
+      block.className = 'card';
+      block.style.marginTop = '12px';
+      block.innerHTML = `
+        <div class="flex" style="flex-wrap:wrap">
+          <strong>Test tahlili</strong>
+          <div class="space"></div>
+          <button class="btn tg" id="btnOpenAnalysis">Test tahlilini ko‘ring</button>
+        </div>
+        <div class="muted" style="margin-top:8px;font-size:13px">Tahlil Telegram link orqali ochiladi.</div>
+      `;
+      dw.appendChild(block);
+      block.querySelector('#btnOpenAnalysis').addEventListener('click', ()=> openTgLink(t.analysisLink));
+    }
   }
 
   /* ——— FAQAT NUSXA OLISH ——— */
