@@ -2371,5 +2371,48 @@ document.getElementById("btnMyStats")?.addEventListener("click", async ()=>{
 
 </script>
 
+<script>
+/* ===== SAVE USERNAME ON LOGIN ===== */
+document.addEventListener("click", function(e){
+  const btn = e.target.closest("button");
+  if(!btn) return;
+
+  // Agar tugma matni 'Kirish' bo'lsa (Foydalanuvchi login)
+  if(btn.textContent.trim().toLowerCase() === "kirish"){
+    const nameInput = document.querySelector('input[placeholder="Ismingiz"]');
+    if(!nameInput) return;
+
+    const username = nameInput.value.trim();
+    if(!username) return;
+
+    try{
+      localStorage.setItem("username", username);
+    }catch(err){ console.error(err); }
+  }
+});
+
+/* ===== AUTO LOGIN ON PAGE LOAD ===== */
+window.addEventListener("load", ()=>{
+  try{
+    const savedUser = localStorage.getItem("username");
+    if(savedUser){
+      const nameInput = document.querySelector('input[placeholder="Ismingiz"]');
+      if(nameInput) nameInput.value = savedUser;
+
+      const badge = document.querySelector(".badge");
+      if(badge) badge.textContent = savedUser;
+
+      // Login panelni yashirish va testlar panelini ko'rsatish (agar mavjud bo'lsa)
+      document.getElementById("loginPanel")?.classList.add("hidden");
+      document.getElementById("userPanel")?.classList.remove("hidden");
+
+      // fallback: agar tugma orqali ochilsa
+      document.getElementById("btnShowAll")?.click();
+    }
+  }catch(e){
+    console.error("Auto login error:", e);
+  }
+});
+</script>
 </body>
 </html>
