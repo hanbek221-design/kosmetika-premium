@@ -1,884 +1,2382 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="uz">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>TestMaster — BUXORO_EDU (Cloud)</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#f8fafc" />
+  <title>TestMaster — BUXORO_EDU</title>
 
-  <!-- Telegram WebApp SDK (tahlil linkni Telegram ichida ochish uchun) -->
+  <!-- Telegram WebApp SDK (Mini App) -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
   <style>
-    :root{
-      --grad1:#111827; --grad2:#0b1220;
-      --card:rgba(255,255,255,.08); --glass:rgba(255,255,255,.06);
-      --text:#e5e7eb; --muted:#9ca3af; --border:rgba(255,255,255,.16);
-      --primary:#60a5fa;--primary-2:#3b82f6;--accent:#a78bfa;
-      --good:#22c55e;--bad:#ef4444;--amber:#f59e0b;
-      --shadow:0 24px 60px rgba(0,0,0,.35); --radius:18px;
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0; font-family:Inter,system-ui,Arial,Segoe UI,Roboto,sans-serif; color:var(--text);
-      background: radial-gradient(1200px 700px at 15% 10%, rgba(96,165,250,.18), transparent 50%),
-                  radial-gradient(1000px 600px at 85% 10%, rgba(167,139,250,.2), transparent 50%),
-                  linear-gradient(160deg, var(--grad1), var(--grad2));
-      min-height:100dvh;
-    }
-    .wrap{max-width:1100px;margin:28px auto;padding:18px}
-    .brand{
-      display:flex;align-items:center;gap:14px;padding:16px 18px;border-radius:20px;
-      background:linear-gradient(90deg, rgba(96,165,250,.12), rgba(167,139,250,.12));
-      border:1px solid var(--border); box-shadow:var(--shadow)
-    }
-    .logo{
-      width:46px;height:46px;border-radius:12px;
-      background:conic-gradient(from 0deg, #60a5fa, #a78bfa, #60a5fa);
-      filter:brightness(1.05) saturate(1.2); box-shadow:0 10px 30px rgba(96,165,250,.35);
-    }
-    h1{margin:0;font-size:22px;letter-spacing:.3px}
-    .brand small{color:var(--muted)}
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
-    @media (max-width:860px){ .grid{grid-template-columns:1fr} }
+/* Light, clean UI for Telegram WebApp */
+:root{
+  --bg: #f8fafc;
+  --card: rgba(255,255,255,.92);
+  --text: #0f172a;
+  --muted:#64748b;
+  --border: rgba(15,23,42,.10);
+  --shadow: 0 22px 50px rgba(2,6,23,.10);
+  --shadow2: 0 10px 26px rgba(2,6,23,.08);
+  --r: 18px;
 
-    .card{
-      background:var(--card); backdrop-filter: blur(10px);
-      border:1px solid var(--border); border-radius:var(--radius);
-      box-shadow:var(--shadow); padding:16px; margin-bottom:16px
-    }
-    .panel-title{display:flex;align-items:center;gap:10px}
-    .pill{padding:6px 10px;border-radius:999px;border:1px solid var(--border);background:var(--glass);color:var(--muted);font-size:12px}
+  --primary1:#2563eb;
+  --primary2:#60a5fa;
 
-    input{
-      width:100%; padding:12px 12px; border-radius:12px; border:1px solid var(--border);
-      background:rgba(255,255,255,.04); color:var(--text); outline:none
-    }
-    input::placeholder{color:#94a3b8}
-    label{display:block;margin:10px 0 6px;font-size:13px;color:var(--muted)}
+  --danger1:#ef4444;
+  --danger2:#fb7185;
 
-    .btn{
-      padding:10px 14px;border-radius:12px;border:1px solid var(--border);
-      background:rgba(255,255,255,.06); color:var(--text); cursor:pointer; transition:.15s
-    }
-    .btn:hover{transform:translateY(-1px); box-shadow:0 10px 24px rgba(0,0,0,.25)}
-    .btn.primary{background:linear-gradient(180deg, rgba(96,165,250,.35), rgba(96,165,250,.25)); border-color:#3b82f6}
-    .btn.ghost{background:rgba(255,255,255,.04)}
-    .btn.small{padding:7px 10px;font-size:13px}
+  --chip:#eef2ff;
+  --chipText:#1d4ed8;
 
-    /* NEW: Telegram tahlil tugmasi */
-    .btn.tg{
-      background:rgba(239,68,68,.12);
-      border-color:rgba(239,68,68,.35);
-    }
+  /* Telegram theme fallbacks */
+  --tg-bg: var(--bg);
+  --tg-text: var(--text);
+  --tg-hint: var(--muted);
+  --tg-link: #2563eb;
+  --tg-btn: var(--primary1);
+  --tg-btn-text: #ffffff;
+}
 
-    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    .flex{display:flex;gap:10px;align-items:center}
-    .space{flex:1}
-    .hidden{display:none!important}
+*{box-sizing:border-box}
+html, body{height:100%}
+body{
+  margin:0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans";
+  color: var(--text);
+  background:
+    radial-gradient(900px 520px at 15% 10%, rgba(96,165,250,.22), transparent 55%),
+    radial-gradient(900px 520px at 85% 10%, rgba(167,139,250,.20), transparent 55%),
+    linear-gradient(180deg, #ffffff, var(--bg));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
 
-    .answer-pad{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px}
-    .opt{
-      padding:16px 22px;border-radius:14px;border:1px solid var(--border);min-width:76px;
-      text-align:center;font-weight:800;font-size:18px;cursor:pointer;transition:.12s;
-      background:rgba(255,255,255,.04); display:flex; align-items:center; justify-content:center; gap:10px;
-    }
-    .opt .hk{
-      font-size:11px; padding:2px 7px; border-radius:999px;
-      border:1px solid var(--border); background:var(--glass); color:var(--muted);
-      line-height:1; letter-spacing:.3px;
-    }
-    .opt[data-v="A"]{background:linear-gradient(180deg, rgba(96,165,250,.10), rgba(96,165,250,.06))}
-    .opt[data-v="B"]{background:linear-gradient(180deg, rgba(34,197,94,.10), rgba(34,197,94,.06))}
-    .opt[data-v="C"]{background:linear-gradient(180deg, rgba(245,158,11,.12), rgba(245,158,11,.06))}
-    .opt[data-v="D"]{background:linear-gradient(180deg, rgba(244,114,182,.12), rgba(244,114,182,.06))}
-    .opt:hover{transform:translateY(-2px)}
-    .opt.active-admin{background:#fee2e2!important; border-color:#fca5a5!important; box-shadow:0 0 0 3px rgba(239,68,68,.25); transform:translateY(-2px)}
-    .opt.active-user{background:#dbeafe!important; border-color:#60a5fa!important; box-shadow:0 0 0 3px rgba(59,130,246,.25); transform:translateY(-2px)}
+/* Top bar */
+.topbar{
+  max-width: 1120px;
+  margin: 18px auto 0;
+  padding: 14px 16px;
+  border-radius: 22px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{
+  width:42px;height:42px;border-radius:14px;
+  background: conic-gradient(from 160deg, #2563eb, #60a5fa, #a78bfa, #2563eb);
+  box-shadow: 0 12px 28px rgba(37,99,235,.25);
+}
+.brand-text .title{font-size:18px;font-weight:900;letter-spacing:.2px}
+.brand-text .subtitle{font-size:12px;color:var(--muted);margin-top:2px}
 
-    table{width:100%;border-collapse:collapse}
-    th,td{padding:10px;border-bottom:1px solid var(--border);text-align:left}
-    th{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+.top-actions{display:flex;align-items:center;gap:10px}
 
-    .tag{display:inline-block;padding:6px 10px;border-radius:999px;
-      background:rgba(96,165,250,.15);border:1px solid rgba(96,165,250,.35);font-size:12px}
+/* Layout */
+.wrap{max-width:1120px;margin:12px auto 22px;padding:0 14px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width: 920px){ .grid{grid-template-columns:1fr} .topbar{margin:12px 12px 0} }
 
-    .active-card{ outline:2px solid #60a5fa; border-color:#60a5fa; box-shadow:0 0 0 3px rgba(96,165,250,.25) }
-    .focus-q{ outline:2px solid #60a5fa; border-color:#60a5fa; box-shadow:0 0 0 3px rgba(96,165,250,.25) }
-    .my-row{ background: rgba(96,165,250,.15); }
-    .adm-qrow{ margin:8px 0; padding:12px; border:1px dashed var(--border); border-radius:14px; }
+.card{
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  box-shadow: var(--shadow2);
+  padding: 16px;
+}
 
-    .muted{color:var(--muted)}
-  </style>
+.card-head{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
+  margin-bottom: 10px;
+}
+.card-title{font-size:18px;font-weight:900}
+.hint{color:var(--muted);font-size:12px;margin-top:4px}
+.note{
+  margin-top:12px;
+  padding:10px 12px;
+  border-radius: 14px;
+  background: rgba(37,99,235,.06);
+  border: 1px dashed rgba(37,99,235,.18);
+  color: #1e3a8a;
+  font-size: 12px;
+}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width: 980px){ .grid2{grid-template-columns:1fr} }
+
+.inner{background: rgba(255,255,255,.95)}
+.inner-title{font-weight:900;margin-bottom:8px}
+.row{display:flex;align-items:center;gap:10px}
+.between{justify-content:space-between}
+.end{justify-content:flex-end}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width: 680px){ .two{grid-template-columns:1fr} }
+
+label{display:block;font-size:12px;color:var(--muted);margin:10px 0 6px}
+input{
+  width:100%;
+  padding: 12px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(15,23,42,.14);
+  background: #ffffff;
+  color: var(--text);
+  outline: none;
+  transition: box-shadow .15s, border-color .15s;
+}
+input:focus{
+  border-color: rgba(37,99,235,.45);
+  box-shadow: 0 0 0 4px rgba(37,99,235,.10);
+}
+input:disabled{
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.btn{
+  padding: 10px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(15,23,42,.14);
+  background: #ffffff;
+  color: var(--text);
+  cursor:pointer;
+  font-weight: 800;
+  transition: transform .12s, box-shadow .12s, border-color .12s;
+}
+.btn:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 12px 28px rgba(2,6,23,.12);
+  border-color: rgba(15,23,42,.20);
+}
+.btn:active{transform: translateY(0px) scale(.99)}
+
+.btn.primary{
+  color:#fff;
+  border: none;
+  background: linear-gradient(135deg, var(--primary1), var(--primary2));
+  box-shadow: 0 16px 34px rgba(37,99,235,.22);
+}
+.btn.ghost{
+  background: rgba(15,23,42,.04);
+}
+.pill{
+  padding:6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(15,23,42,.12);
+  background: rgba(15,23,42,.03);
+  color: #334155;
+  font-size: 12px;
+  font-weight: 800;
+}
+.pill.danger{
+  background: rgba(239,68,68,.10);
+  border-color: rgba(239,68,68,.25);
+  color: #991b1b;
+}
+.tag{
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: var(--chip);
+  color: var(--chipText);
+  border: 1px solid rgba(37,99,235,.18);
+  font-weight: 900;
+  font-size: 12px;
+}
+
+/* Tools row */
+.tools{
+  display:grid;
+  grid-template-columns: 1fr auto 1fr auto auto;
+  gap:10px;
+  margin-top: 10px;
+}
+@media (max-width: 980px){
+  .tools{grid-template-columns:1fr; }
+}
+
+/* Answer grid */
+.answer-grid{margin-top:12px;display:flex;flex-direction:column;gap:10px}
+.qrow{
+  border-radius: 16px;
+  border: 1px dashed rgba(15,23,42,.16);
+  padding: 12px;
+  background: rgba(15,23,42,.02);
+}
+.qrow-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+.qn{font-weight:900}
+.pad{display:flex;gap:10px;flex-wrap:wrap}
+
+/* Variant buttons (rangli) — kontrast kuchli */
+.opt{
+  width:90px;height:52px;
+  border-radius: 16px;
+  border: 2px solid rgba(15,23,42,.14);
+  background: rgba(15,23,42,.02);
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-weight: 950;
+  letter-spacing:.2px;
+  color: #0f172a;
+  transition: transform .12s, box-shadow .12s, border-color .12s, background-color .12s, color .12s;
+  --c: 37, 99, 235; /* default */
+  position: relative;
+  user-select: none;
+}
+.opt:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 12px 22px rgba(2,6,23,.12);
+}
+.opt:active{transform: translateY(0px) scale(.99)}
+
+/* Base tint per option — oq fon ichida ham aniq ko‘rinsin */
+.opt[data-v="A"]{ --c: 37, 99, 235; background: rgba(var(--c), .16); border-color: rgba(var(--c), .42); }
+.opt[data-v="B"]{ --c: 34, 197, 94; background: rgba(var(--c), .16); border-color: rgba(var(--c), .42); }
+.opt[data-v="C"]{ --c: 245, 158, 11; background: rgba(var(--c), .18); border-color: rgba(var(--c), .46); }
+.opt[data-v="D"]{ --c: 236, 72, 153; background: rgba(var(--c), .16); border-color: rgba(var(--c), .42); }
+
+/* Selected — admin */
+.opt.admin-on{
+  background: rgba(var(--c), .26);
+  border-color: rgba(var(--c), .75);
+  box-shadow: 0 0 0 5px rgba(var(--c), .18);
+}
+
+/* Selected — user (yanada kuchli) */
+.opt.user-on{
+  background: rgba(var(--c), .90);
+  border-color: rgba(var(--c), 1);
+  color: #ffffff;
+  box-shadow: 0 0 0 6px rgba(var(--c), .22), 0 18px 36px rgba(2,6,23,.10);
+}
+.opt.user-on::after{
+  content: "✓";
+  position: absolute;
+  right: 10px;
+  top: 8px;
+  font-size: 14px;
+  font-weight: 900;
+  opacity: .95;
+}
+
+/* Lists */
+.list{display:flex;flex-direction:column;gap:12px}
+.item{
+  border-radius: 18px;
+  border: 1px solid rgba(15,23,42,.10);
+  background: #ffffff;
+  padding: 14px;
+  box-shadow: 0 12px 26px rgba(2,6,23,.06);
+}
+.item-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.item-title{font-weight: 950; font-size: 16px}
+.item-meta{color: var(--muted); font-size: 12px; margin-top: 4px}
+.item-actions{margin-top: 10px; display:flex; gap:10px; flex-wrap:wrap}
+
+/* Material chips */
+.materials{
+  margin-top:10px;
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.chip{
+  padding: 8px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(15,23,42,.12);
+  background: rgba(15,23,42,.03);
+  color: #0f172a;
+  font-weight: 900;
+  font-size: 12px;
+  cursor:pointer;
+}
+.chip.video{background: rgba(245,158,11,.10); border-color: rgba(245,158,11,.25)}
+.chip.pdf{background: rgba(34,197,94,.10); border-color: rgba(34,197,94,.22)}
+.chip.analysis{background: rgba(239,68,68,.10); border-color: rgba(239,68,68,.25)}
+.chip:hover{box-shadow: 0 10px 22px rgba(2,6,23,.10); transform: translateY(-1px)}
+
+/* Tables */
+.tablewrap{margin-top:12px}
+table{width:100%;border-collapse:collapse;overflow:hidden;border-radius:14px;border:1px solid rgba(15,23,42,.10)}
+th,td{padding:10px 10px;border-bottom:1px solid rgba(15,23,42,.08);text-align:left}
+th{background: rgba(15,23,42,.03); color:#475569; font-size: 12px; letter-spacing:.35px; text-transform:uppercase}
+tr:last-child td{border-bottom:none}
+.my-row{background: rgba(37,99,235,.06)}
+
+/* Detail */
+.detail{margin-top:12px}
+
+/* Play */
+.play{display:flex;flex-direction:column;gap:10px}
+.focus{outline: 3px solid rgba(37,99,235,.22); box-shadow: 0 0 0 8px rgba(37,99,235,.10)}
+.hidden{display:none!important}
+
+/* Toast */
+.toast{
+  position:fixed;
+  left:50%; bottom:18px;
+  transform:translateX(-50%);
+  background: rgba(15,23,42,.92);
+  color:#fff;
+  padding:10px 12px;
+  border-radius: 14px;
+  opacity: 0;
+  pointer-events:none;
+  transition: opacity .18s ease;
+  max-width: min(560px, calc(100vw - 18px));
+  text-align:center;
+  box-shadow: 0 16px 40px rgba(0,0,0,.25);
+}
+.toast.show{opacity:1}
+
+
+/* Modal */
+.modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:50;padding:14px}
+.modal-backdrop{position:absolute;inset:0;background:rgba(2,6,23,.45);backdrop-filter: blur(2px)}
+.modal-card{
+  position:relative;
+  width:min(620px, calc(100vw - 18px));
+  border-radius: 18px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  padding: 14px;
+}
+.modal-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:8px}
+.modal-title{font-weight:950;font-size:16px}
+.modal-sub{color:var(--muted);font-size:12px;margin-top:2px}
+
+/* Telegram theme syncing (optional) */
+body.tg{
+  background: var(--tg-bg);
+  color: var(--tg-text);
+}
+
+/* Table polish */
+tbody tr:hover{background: rgba(2,6,23,.025)}
+td b{font-weight: 950}
+.my-row{background: rgba(37,99,235,.08)!important}
+/* Banner */
+.banner{
+  background: rgba(245,158,11,.10);
+  border: 1px solid rgba(245,158,11,.25);
+  color: #0f172a;
+  padding: 10px 12px;
+  border-radius: 14px;
+  margin: 10px 0 14px;
+}
+.banner-actions{margin-top:6px;color:rgba(15,23,42,.78);font-size:12px}
+
+#guideText{resize:vertical;min-height:140px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace}
+/* Material flash */
+.chip.flash{animation: flashGlow 900ms ease-out 1}
+@keyframes flashGlow{
+  0%{box-shadow:0 0 0 0 rgba(37,99,235,.0)}
+  30%{box-shadow:0 0 0 8px rgba(37,99,235,.18)}
+  100%{box-shadow:0 0 0 0 rgba(37,99,235,.0)}
+}
+/* Rank line */
+.rankline{
+  margin-top:6px;
+  font-size: 12px;
+  color: rgba(15,23,42,.75);
+}
+.rankline b{color:#0f172a}
+
+#btnGuideBack{white-space:nowrap}
+
+</style>
+
+<style>
+.opt.correct{background:#16a34a !important;color:#fff !important;border-color:#16a34a !important}
+.opt.wrong{background:#dc2626 !important;color:#fff !important;border-color:#dc2626 !important}
+.key-panel{padding:10px 12px;border:1px dashed #94a3b8;border-radius:12px;margin-bottom:10px;font-weight:700}
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+.opt{width:110px;height:70px;font-size:20px}
+.nav-btn{padding:6px 10px;border-radius:10px;border:1px solid #94a3b8;background:#f1f5f9;cursor:pointer;font-weight:700}
+.nav-btn.done{background:#22c55e;color:white}
+.qrow.hiddenWrong{display:none}
+.new-test-header{background:#fef3c7;border-top:3px solid #f59e0b;padding:6px 8px;font-weight:900;margin-bottom:4px}
+</style>
+
 </head>
 <body>
-  <div class="wrap">
+  <header class="topbar">
     <div class="brand">
-      <div class="logo"></div>
-      <div>
-        <h1>TestMaster — BUXORO_EDU</h1>
-        <small>Bulutga saqlanadigan professional test tizimi (Firestore)</small>
-      </div>
-      <div class="space"></div>
-      <span class="pill">Cloud v1.7 — Copy Only</span>
-    </div>
-
-    <div class="grid" id="authGrid">
-      <!-- Foydalanuvchi: faqat ism -->
-      <div class="card" id="authCard">
-        <div class="panel-title">
-          <strong>Foydalanuvchi</strong><span class="pill">Parolsiz (faqat ism)</span>
-        </div>
-        <div id="loginPanel" style="margin-top:10px">
-          <label>Ismingizni yozing (istalgan ism, unikallik shart emas)</label>
-          <input id="userName" placeholder="Masalan: Ali yoki Dilnoza" />
-          <div class="flex" style="margin-top:10px">
-            <button class="btn primary" id="btnUserLogin">Kirish</button>
-            <div class="space"></div>
-          </div>
-          <div style="margin-top:10px;color:var(--muted);font-size:13px">
-            Parol kerak emas. Xohlagan ismingizni kiriting va testlarni ishga tushiring.
-          </div>
-        </div>
-      </div>
-
-      <!-- Admin auth -->
-      <div class="card" id="adminAuthCard">
-        <div class="panel-title"><strong>Admin kirish</strong><span class="pill">Maxfiy</span></div>
-        <div class="row" style="margin-top:8px">
-          <div><input id="adminLogin" placeholder="admin login" /></div>
-          <div><input id="adminCode" placeholder="kod" type="password" /></div>
-        </div>
-        <div class="flex" style="margin-top:8px">
-          <button class="btn primary" id="btnAdminLogin">Admin sifatida kirish</button>
-          <div class="space"></div>
-          <span style="color:var(--muted);font-size:13px">Admin qiymatlari ko‘rsatilmaydi.</span>
-        </div>
+      <div class="logo" aria-hidden="true"></div>
+      <div class="brand-text">
+        <div class="title">TestMaster — BUXORO_EDU</div>
+        <div class="subtitle">Telegram WebApp + Firestore (Cloud)</div>
       </div>
     </div>
 
-    <!-- Admin panel -->
-    <div class="card hidden" id="adminCard">
-      <div class="flex">
-        <div class="panel-title"><strong>Admin — boshqaruv</strong><span class="pill">Test yaratish / O‘chirish / Hisobot</span></div>
-        <div class="space"></div>
-        <button class="btn small" id="btnLogout1">Chiqish</button>
+    <div class="top-actions">
+      <span class="pill">Cloud v1.8</span>
+      <button class="btn ghost" id="btnClose" type="button" title="Yopish">Yopish</button>
+    </div>
+  </header>
+
+  <main class="wrap">
+
+    <div class="banner hidden" id="fileBanner">
+      <b>Diqqat:</b> Siz faylni kompyuterdan <code>file:///</code> orqali ochgansiz. Bu holatda Firebase/Telegram WebApp to‘liq ishlamaydi.
+      <div class="banner-actions">
+        <span>Yechim: GitHub Pages (https://...) ga joylang yoki “Live Server” bilan oching.</span>
+      </div>
+    </div>
+
+    <!-- AUTH -->
+    <section class="grid" id="authGrid">
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <div class="card-title">Foydalanuvchi</div>
+            <div class="hint">Parolsiz: faqat ism</div>
+          </div>
+          <span class="pill">Student</span>
+        </div>
+
+        <label for="userName">Ismingiz</label>
+        <input id="userName" placeholder="Masalan: Ali" autocomplete="name" />
+
+        <div class="row" style="margin-top:12px">
+          <button class="btn primary" id="btnUserLogin" type="button">Kirish</button>
+        </div>
+
+        <div class="note">
+          Telegram Mini App ichida ishlaganda, sahifa avtomatik moslashadi.
+        </div>
       </div>
 
-      <div class="grid" style="margin-top:10px">
-        <div class="card" style="margin:0">
-          <strong>Test yaratish</strong>
-          <div style="margin-top:10px">
-            <label>Test nomi</label><input id="tName" />
-            <label style="margin-top:10px">Maxsus kod</label><input id="tCode" />
-            <label style="margin-top:10px">Savollar soni</label><input id="tCount" type="number" value="5" min="1" />
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <div class="card-title">Admin kirish</div>
+            <div class="hint">Login + kod</div>
+          </div>
+          <span class="pill danger">Admin</span>
+        </div>
 
-            <!-- NEW: Telegram tahlil linki -->
-            <label style="margin-top:10px">Telegram tahlil linki (ixtiyoriy)</label>
+        <div class="two">
+          <div>
+            <label for="adminLogin">Login</label>
+            <input id="adminLogin" placeholder="admin login" autocomplete="username" />
+          </div>
+          <div>
+            <label for="adminCode">Kod</label>
+            <input id="adminCode" placeholder="kod" type="password" autocomplete="current-password" />
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:12px">
+          <button class="btn primary" id="btnAdminLogin" type="button">Admin sifatida kirish</button>
+        </div>
+
+        <div class="note">
+          Admin qiymatlari UI’da saqlanmaydi. (Kod faqat tekshiruv uchun.)
+        </div>
+      </div>
+    </section>
+
+    <!-- ADMIN -->
+    <section class="card hidden" id="adminCard">
+      <div class="card-head">
+        <div>
+          <div class="card-title">Admin — boshqaruv</div>
+          <div class="hint">Test yaratish / Link biriktirish / O‘chirish</div>
+        </div>
+        <div class="row" style="gap:8px">
+          <button class="btn" id="btnAdminRefresh" type="button">Yangilash</button>
+          <button class="btn" id="btnReportLinkOpen" type="button">Yuborish linki</button>
+          <button class="btn ghost" id="btnLogoutAdmin" type="button">Chiqish</button>
+        </div>
+      </div>
+
+      <div class="grid2">
+        <div class="card inner">
+          <div class="inner-title">Test yaratish</div>
+
+          <label for="tName">Test nomi</label>
+          <input id="tName" />
+
+          <label for="tCode">Maxsus kod</label>
+          <input id="tCode" />
+
+          <div class="two">
+            <div>
+              <label for="tCount">Savollar soni</label>
+              <input id="tCount" type="number" value="5" min="1" />
+            </div>
+            <div>
+              <label for="tKeyHint">Javoblar</label>
+              <input id="tKeyHint" value="A/B/C/D tanlang" disabled />
+            </div>
+          </div>
+
+          <!-- NEW: 3 ta link (ixtiyoriy) -->
+          <div class="links-box">
+            <div class="links-title">Materiallar (ixtiyoriy)</div>
+
+            <label for="tVideoLink">🎬 Video tahlil linki</label>
+            <input id="tVideoLink" placeholder="https://youtube.com/... yoki https://t.me/..." />
+
+            <label for="tPdfLink">📄 PDF test linki</label>
+            <input id="tPdfLink" placeholder="https://drive.google.com/... yoki pdf URL" />
+
+            <label for="tAnalysisLink">🧾 Test tahlili linki (Telegram)</label>
             <input id="tAnalysisLink" placeholder="https://t.me/c/3086001686/2/17260" />
 
-            <div class="flex" style="margin-top:10px">
-              <button class="btn" id="btnBuildGrid">Javob panellari</button>
-              <button class="btn primary" id="btnSaveTest">Saqlash</button>
+            <div class="hint">
+              Video/PDF — testdan oldin ochiladi. Test tahlili — faqat test yakunlangandan keyin chiqadi.
             </div>
-            <div id="answerGrid" style="margin-top:10px"></div>
           </div>
+
+          <div class="row" style="margin-top:12px">
+            <button class="btn" id="btnBuildGrid" type="button">Javob panellari</button>
+            <button class="btn primary" id="btnSaveTest" type="button">Saqlash</button>
+          </div>
+
+          <div id="answerGrid" class="answer-grid"></div>
         </div>
 
-        <div class="card" style="margin:0">
-          <strong>Saqlangan testlar</strong>
-          <div class="panel-title" style="margin-top:8px"><span class="pill" id="testsCount">0 ta</span></div>
-          <div id="adminTests" style="margin-top:10px"></div>
+        <div class="card inner">
+          <div class="inner-title row between">
+            <span>Saqlangan testlar</span>
+            <span class="pill" id="testsCount">0 ta</span>
+          </div>
+
+          <div id="adminTests" class="list"></div>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- User panel -->
-    <div class="card hidden" id="userCard">
-      <div class="flex">
-        <div class="panel-title"><strong>Testlar</strong><span class="pill">Tez kirish</span></div>
-        <div class="space"></div>
-        <span id="whoTag" class="tag"></span>
-        <button class="btn small" id="btnLogout2">Chiqish</button>
+    <!-- USER -->
+    <section class="card hidden" id="userCard">
+      <div class="card-head">
+        <div>
+          <div class="card-title">Testlar</div>
+          <div class="hint">Kodni kiriting yoki ro‘yxatdan tanlang</div>
+        </div>
+        <div class="row" style="gap:8px">
+          <span class="tag" id="whoTag">—</span>
+          <button class="btn ghost" id="btnLogoutUser" type="button">Chiqish</button>
+        </div>
       </div>
 
-      <div class="flex" style="gap:8px;flex-wrap:wrap;margin-top:8px">
-        <input id="codeInput" placeholder="Kod: masalan ENG101" style="max-width:260px">
-        <button class="btn primary" id="btnStartByCode">Kodni ishga tushirish</button>
+      <div class="tools">
+        <input id="codeInput" placeholder="Kod: masalan ENG101" />
+        <button class="btn primary" id="btnStartByCode" type="button">Kirish</button>
 
-        <input id="nameSearch" placeholder="Nom bo‘yicha qidirish..." style="min-width:220px">
-        <button class="btn" id="btnClearSearch">Tozalash</button>
-
-        <button class="btn" id="btnShowAll">Barcha testlar</button>
+        <input id="nameSearch" placeholder="Nom bo‘yicha qidirish..." />
+        <button class="btn" id="btnShowAll" type="button">Barcha testlar</button>
+        <button class="btn" id="btnClearSearch" type="button">Tozalash</button>
       </div>
 
-      <div id="testsList" style="margin-top:12px"></div>
-    </div>
+      <button class="btn" id="btnDownloadKeys" type="button" style="margin:10px 0">📄 Javoblarni yuklab olish (PDF)</button>
+<div id="testsList" class="list" style="margin-top:12px"></div>
+<div style="margin-top:16px">
+  <button class="btn" id="btnMyTests">📚 Mening testlarim</button>
+  <div id="myTestsWrap" class="list" style="margin-top:10px"></div>
+</div>
 
-    <!-- Test o‘ynash -->
-    <div class="card hidden" id="playCard">
-      <div class="flex">
-        <div class="panel-title"><strong id="playTitle">Test</strong><span class="pill">Ishlash</span></div>
-        <div class="space"></div>
-        <button class="btn small" id="btnBack1">⬅️ Orqaga</button>
-      </div>
-      <div id="playBody" style="margin-top:12px"></div>
-      <div class="flex" style="margin-top:12px">
-        <div class="space"></div>
-        <button class="btn primary" id="finishBtn">Yakunlash (Ctrl+Enter)</button>
-      </div>
-    </div>
+    </section>
 
-    <!-- Natijalar -->
-    <div class="card hidden" id="resultsCard">
-      <div class="flex">
-        <div class="panel-title"><strong id="resTitle">Natijalar</strong><span class="pill">Reyting</span></div>
-        <div class="space"></div>
-        <button class="btn small" id="btnBack2">⬅️ Orqaga</button>
+    <!-- PLAY -->
+    <section class="card hidden" id="playCard">
+      <div class="card-head">
+        <div>
+          <div class="card-title" id="playTitle">Test</div>
+          <div class="hint">A/B/C/D tugmalarini tanlang</div>
+<div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+  <button class="btn" id="btnToggleWrong">❌ Faqat xatolar</button>
+  <button class="btn" id="btnTeacherMode">👨‍🏫 Teacher mode</button>
+</div>
+<div id="navPanel" style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px"></div>
+
+        </div>
+        <div class="row" style="gap:8px">
+          <button class="btn ghost" id="btnBack1" type="button">⬅️ Orqaga</button>
+        </div>
       </div>
-      <div id="leaderboardWrap" style="margin-top:12px"></div>
-      <div id="detailWrap" style="margin-top:12px"></div>
-      <div class="flex" style="margin-top:12px">
-        <div class="space"></div>
-        <!-- faqat nusxa olish -->
-        <button class="btn" id="btnCopy">📋 Nusxa olish</button>
+
+      <div id="playBody" class="play"></div>
+
+      <div class="row end" style="margin-top:12px">
+        <button class="btn primary" id="finishBtn" type="button">Yakunlash (Ctrl+Enter)</button>
+      </div>
+    </section>
+
+    <!-- RESULTS -->
+    <section class="card hidden" id="resultsCard">
+      <div class="card-head">
+        <div>
+          <div class="card-title" id="resTitle">Natijalar</div>
+          <div class="hint">Reyting + tafsilot</div>
+          <div class="rankline" id="rankLine">—</div>
+        </div>
+        <div class="row" style="gap:8px">
+          <button class="btn ghost" id="btnBack2" type="button">⬅️ Orqaga</button>
+<button class="btn" id="btnCopy" type="button">📋 Nusxa olish (telegramga yuborish uchun nusxa olishni bosing)</button>
+        </div>
+      </div>
+
+      <div id="leaderboardWrap" class="tablewrap"></div>
+      <div id="detailWrap" class="detail"></div>
+    </section>
+
+    <div class="toast" id="toast"></div>
+  
+  <!-- Clipboard guide modal -->
+  <div class="modal hidden" id="guideModal" role="dialog" aria-modal="true" aria-labelledby="guideTitle">
+    <div class="modal-backdrop" data-act="closeGuide"></div>
+    <div class="modal-card">
+      <div class="modal-head">
+        <div>
+          <div class="modal-title" id="guideTitle">Natija nusxalandi</div>
+          <div class="modal-sub">Telegram guruhga yuborish uchun quyidagilarni bajaring.</div>
+        </div>
+        <button class="btn ghost" type="button" id="btnGuideBack">⬅️ Orqaga</button>
+        <button class="btn ghost" type="button" id="btnGuideClose">Yopish</button>
+      </div>
+
+      <div class="note">
+        1) Telegram guruhingiz ochiladi (yoki o‘zingiz ochasiz).<br/>
+        2) Xabar yozish oynasidagi bo‘sh joyni <b>bosib turing</b>.<br/>
+        3) <b>“Paste / Вставить”</b> ni tanlang.<br/>
+        4) <b>Yuboring</b> — natija guruhda paydo bo‘ladi.
+      </div>
+
+      <label style="margin-top:10px">Nusxalangan matn</label>
+      <textarea id="guideText" rows="7" style="width:100%"></textarea>
+
+      <div class="row end" style="margin-top:12px;gap:10px;flex-wrap:wrap">
+        <button class="btn" type="button" id="btnGuideCopy">📋 Qayta nusxa olish</button>
+        <button class="btn primary" type="button" id="btnGuideOpen">📨 Telegramni ochish</button>
       </div>
     </div>
   </div>
 
-  <footer style="opacity:.8;text-align:center;margin:18px 0">
-    © 2025 TestMaster — Firestore Cloud (Copy Only)
-  </footer>
+</main>
+  <script type="module">
+// TestMaster — Telegram WebApp Ready (Video/PDF/Analysis links)
+// Firebase: 10.12.3 (module CDN)
 
-<!-- ===== FIREBASE / FIRESTORE ===== -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
-  import {
-    getFirestore, doc, getDoc, setDoc, deleteDoc,
-    collection, getDocs, query, where, writeBatch
-  } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+import {
+  getFirestore, doc, getDoc, setDoc, deleteDoc,
+  collection, getDocs, query, where, writeBatch, limit, onSnapshot
+} from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
 
-  /* ——— Config (Siz bergan yangi project) ——— */
-  const firebaseConfig = {
-    apiKey: "AIzaSyBJNZlgnfh_UI96SLYX_RLLpElbYEozazA",
-    authDomain: "buxoroedu-87f52.firebaseapp.com",
-    projectId: "buxoroedu-87f52",
-    storageBucket: "buxoroedu-87f52.appspot.com",
-    messagingSenderId: "444519456395",
-    appId: "1:444519456395:web:d8ca35794b173b9e78be8e",
-    measurementId: "G-6T2K290W9Y"
-  };
+/* ===== FIREBASE CONFIG (sizning project) ===== */
+const firebaseConfig = {
+  apiKey: "AIzaSyBJNZlgnfh_UI96SLYX_RLLpElbYEozazA",
+  authDomain: "buxoroedu-87f52.firebaseapp.com",
+  projectId: "buxoroedu-87f52",
+  storageBucket: "buxoroedu-87f52.appspot.com",
+  messagingSenderId: "444519456395",
+  appId: "1:444519456395:web:d8ca35794b173b9e78be8e",
+  measurementId: "G-6T2K290W9Y"
+};
 
-  const app = initializeApp(firebaseConfig);
-  const db  = getFirestore(app);
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
 
-  /* ——— Telegram init (ixtiyoriy) ——— */
-  try {
-    const tg = window.Telegram?.WebApp;
-    if (tg) tg.ready();
-  } catch(e){}
+/* ===== DOM ===== */
+const $ = (id)=>document.getElementById(id);
+const el = {
+  authGrid: $("authGrid"),
+  adminCard: $("adminCard"),
+  userCard: $("userCard"),
+  playCard: $("playCard"),
+  resultsCard: $("resultsCard"),
 
-  /* ——— Helpers ——— */
-  const $ = (id)=>document.getElementById(id);
-  function show(id,on=true){ const el=$(id); if(el) el.classList.toggle('hidden', !on) }
-  function escapeHtml(s){ return (s||'').toString().replace(/[&<>"]/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])) }
+  btnClose: $("btnClose"),
+  toast: $("toast"),
 
-  // NEW: Telegram tahlil link helperlari
-  function normalizeTgLink(u){
-    let url = (u||'').trim();
-    if(!url) return '';
-    if(url.startsWith('t.me/')) url = 'https://' + url;
-    return url;
+  userName: $("userName"),
+  btnUserLogin: $("btnUserLogin"),
+
+  adminLogin: $("adminLogin"),
+  adminCode: $("adminCode"),
+  btnAdminLogin: $("btnAdminLogin"),
+
+  btnAdminRefresh: $("btnAdminRefresh"),
+  btnReportLinkOpen: $("btnReportLinkOpen"),
+  btnLogoutAdmin: $("btnLogoutAdmin"),
+
+  reportLinkModal: $("reportLinkModal"),
+  reportLinkInput: $("reportLinkInput"),
+  btnReportLinkSave: $("btnReportLinkSave"),
+  btnReportLinkCancel: $("btnReportLinkCancel"),
+
+  fileBanner: $("fileBanner"),
+  guideModal: $("guideModal"),
+  guideText: $("guideText"),
+  btnGuideBack: $("btnGuideBack"),
+  btnGuideClose: $("btnGuideClose"),
+  btnGuideCopy: $("btnGuideCopy"),
+  btnGuideOpen: $("btnGuideOpen"),
+
+  tName: $("tName"),
+  tCode: $("tCode"),
+  tCount: $("tCount"),
+  tKeyHint: $("tKeyHint"),
+  tVideoLink: $("tVideoLink"),
+  tPdfLink: $("tPdfLink"),
+  tAnalysisLink: $("tAnalysisLink"),
+  btnBuildGrid: $("btnBuildGrid"),
+  btnSaveTest: $("btnSaveTest"),
+  answerGrid: $("answerGrid"),
+  testsCount: $("testsCount"),
+  adminTests: $("adminTests"),
+
+  whoTag: $("whoTag"),
+  btnLogoutUser: $("btnLogoutUser"),
+  codeInput: $("codeInput"),
+  btnStartByCode: $("btnStartByCode"),
+  nameSearch: $("nameSearch"),
+  btnShowAll: $("btnShowAll"),
+  btnClearSearch: $("btnClearSearch"),
+  testsList: $("testsList"),
+
+  playTitle: $("playTitle"),
+  playBody: $("playBody"),
+  btnBack1: $("btnBack1"),
+  finishBtn: $("finishBtn"),
+
+  resTitle: $("resTitle"),
+  btnBack2: $("btnBack2"),
+btnCopy: $("btnCopy"),
+  leaderboardWrap: $("leaderboardWrap"),
+  detailWrap: $("detailWrap"),
+  rankLine: $("rankLine"),
+};
+
+/* ===== Telegram WebApp integration ===== */
+const tg = window.Telegram?.WebApp;
+
+// Telegram natijalar yuboriladigan chat/post linki (siz bergan)
+let REPORT_LINK = "https://t.me/c/3086001686/18";
+
+function tgInit(){
+  if (!tg) return;
+  try{
+    tg.ready();
+    tg.expand?.();
+    tg.disableVerticalSwipes?.();
+    tg.setHeaderColor?.({color: tg.themeParams?.bg_color || "#ffffff"});
+    tg.setBackgroundColor?.(tg.themeParams?.bg_color || "#ffffff");
+    applyTgTheme(tg.themeParams);
+    document.body.classList.add("tg");
+
+    tg.onEvent?.("themeChanged", ()=>{
+      applyTgTheme(tg.themeParams);
+      tg.setHeaderColor?.({color: tg.themeParams?.bg_color || "#ffffff"});
+      tg.setBackgroundColor?.(tg.themeParams?.bg_color || "#ffffff");
+    });
+  }catch(_){}
+}
+
+function applyTgTheme(p){
+  // Telegram themeParams are optional; fallback remains our light theme
+  if (!p) return;
+  const root = document.documentElement;
+  if (p.bg_color) root.style.setProperty("--tg-bg", p.bg_color);
+  if (p.text_color) root.style.setProperty("--tg-text", p.text_color);
+  if (p.hint_color) root.style.setProperty("--tg-hint", p.hint_color);
+  if (p.link_color) root.style.setProperty("--tg-link", p.link_color);
+  if (p.button_color) root.style.setProperty("--tg-btn", p.button_color);
+  if (p.button_text_color) root.style.setProperty("--tg-btn-text", p.button_text_color);
+}
+
+function haptic(type="light"){
+  try{ tg?.HapticFeedback?.impactOccurred?.(type); }catch(_){}
+}
+
+function showToast(msg, ms=2200){
+  el.toast.textContent = msg;
+  el.toast.classList.add("show");
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(()=> el.toast.classList.remove("show"), ms);
+}
+
+
+async function copyToClipboard(text){
+  try{
+    await navigator.clipboard.writeText(text);
+    return true;
+  }catch(_){
+    try{
+      prompt("Ctrl+C bilan nusxa oling:", text);
+      return false;
+    }catch(__){
+      return false;
+    }
   }
-  function isValidTgLink(url){
-    if(!url) return true;
-    return /^https:\/\/t\.me\//i.test(url);
-  }
-  function openTgLink(url){
-    if(!url) return;
-    const tg = window.Telegram?.WebApp;
-    if(tg && typeof tg.openTelegramLink === 'function'){
-      tg.openTelegramLink(url);
+}
+
+// “Telegramga yuborish”: natijani nusxalab, ko‘rsatilgan Telegram chat/postga olib boradi.
+// Eslatma: WebApp ichidan guruhga avtomatik post qilish faqat bot-server orqali bo‘ladi.
+// Bu tugma sizga eng qulay yo‘l: Copy + Telegramga o'tish.
+async function sendResultToTelegram(text){
+  // Endi hech qachon Telegramni o‘zi ochmaydi va hech kimga avtomatik jo‘natmaydi.
+  // Faqat: nusxa olish + pastda 5 soniyalik ko‘rsatma.
+  if(!text) return showToast("Avval natija chiqsin.");
+  await copyToClipboard(text);
+  showToast("✅ Nusxa olindi. Endi Telegramga o‘ting va kerakli guruhingizga “Paste / Вставить” qiling.", 5000);
+  haptic("light");
+}
+
+el.btnClose?.addEventListener("click", ()=>{
+  if (tg?.close) tg.close();
+  else window.close();
+});
+
+tgInit();
+
+/* ===== Link helpers ===== */
+function normalizeUrl(u){
+  let url = (u||"").trim();
+  if(!url) return "";
+  if(url.startsWith("t.me/")) url = "https://" + url;
+  return url;
+}
+function isValidUrl(u){
+  if(!u) return true;
+  // allow https links only for safety/simplicity
+  return /^https:\/\//i.test(u);
+}
+function isTelegramLink(u){
+  return /^https:\/\/t\.me\//i.test(u);
+}
+function openAnyLink(url){
+  const u = normalizeUrl(url);
+  if(!u) return;
+
+  // Telegram internal open:
+  if (tg){
+    if (isTelegramLink(u) && typeof tg.openTelegramLink === "function"){
+      tg.openTelegramLink(u);
       return;
     }
-    window.open(url, '_blank', 'noopener,noreferrer');
-  }
-
-  /* ——— Qidiruv klaviatura holati ——— */
-  let __searchItems = [];
-  let __searchIndex = -1;
-  let __searchTimer = null;
-  function setActiveCard(idx){
-    __searchIndex = idx;
-    document.querySelectorAll('#testsList .card').forEach(el=> el.classList.remove('active-card'));
-    const el = document.getElementById('srch_'+idx);
-    if(el){ el.classList.add('active-card'); el.scrollIntoView({ block:'nearest', behavior:'smooth' }); }
-  }
-
-  /* ——— Cache ——— */
-  const CACHE = { tests:null, lastTestsAt:0 };
-  async function cachedAllTests(force=false){
-    if(!force && CACHE.tests && (Date.now()-CACHE.lastTestsAt<15000)) return CACHE.tests;
-    const qs = await getDocs(collection(db,'tests')); const arr=[]; qs.forEach(d=>arr.push(d.data()));
-    arr.sort((a,b)=>a.name.localeCompare(b.name));
-    CACHE.tests=arr; CACHE.lastTestsAt=Date.now(); return arr;
-  }
-
-  /* ——— Batch delete helper ——— */
-  async function __batchDeleteSnap(db, snap){
-    const refs=[]; snap.forEach(d=>refs.push(d.ref));
-    for(let i=0;i<refs.length;i+=450){
-      const batch = writeBatch(db);
-      refs.slice(i,i+450).forEach(r=>batch.delete(r));
-      await batch.commit();
-    }
-  }
-
-  /* ——— DB qatlam (users yo‘q) ——— */
-  const DB = {
-    async saveTest({name, code, count, key, analysisLink}){
-      await setDoc(doc(db,'tests', code), {
-        name, code, count, key,
-        analysisLink: analysisLink || '',
-        updatedAt: Date.now()
-      });
-      CACHE.tests=null;
-    },
-
-    // NEW: faqat tahlil linkni merge bilan yangilash (key/count buzilmaydi)
-    async setAnalysisLink(code, analysisLink){
-      await setDoc(doc(db,'tests', code), {
-        analysisLink: analysisLink || '',
-        updatedAt: Date.now()
-      }, { merge:true });
-      CACHE.tests=null;
-    },
-
-    async allTests(){ return cachedAllTests(); },
-
-    async getAttempts(code, login){
-      const id = `${code}__${login.toLowerCase()}`;
-      const snap = await getDoc(doc(db,'attempts', id));
-      return snap.exists() ? (snap.data().count||0) : 0;
-    },
-    async incAttempt(code, login){
-      const id = `${code}__${login.toLowerCase()}`;
-      const n = await this.getAttempts(code, login)+1;
-      await setDoc(doc(db,'attempts', id), { code, login, count:n, updatedAt: Date.now() });
-      return n;
-    },
-
-    async getResults(code){
-      const qs = await getDocs(query(collection(db,'results'), where('code','==',code)));
-      const arr=[]; qs.forEach(d=>arr.push(d.data()));
-      return arr.sort((a,b)=> b.score-a.score || a.date-b.date);
-    },
-    async upsertBestResult(rec){
-      const id = `${rec.code}__${rec.login.toLowerCase()}`;
-      const ref = doc(db,'results', id);
-      const cur = await getDoc(ref);
-      if(!cur.exists() || (rec.score > (cur.data().score||0))){
-        await setDoc(ref, rec);
-      }
-    },
-    async bestOfUser(code, login){
-      const id = `${code}__${login.toLowerCase()}`;
-      const snap = await getDoc(doc(db,'results', id));
-      return snap.exists()? snap.data(): null;
-    },
-
-    async deleteTestDeep(code){
-      const resSnap = await getDocs(query(collection(db,'results'), where('code','==',code)));
-      await __batchDeleteSnap(db, resSnap);
-      const attSnap = await getDocs(query(collection(db,'attempts'), where('code','==',code)));
-      await __batchDeleteSnap(db, attSnap);
-      await deleteDoc(doc(db,'tests', code));
-      CACHE.tests=null;
-    }
-  };
-
-  /* ——— Sessiya / UI ——— */
-  let SESSION = { role:null, login:null };
-  function logout(){
-    SESSION={role:null,login:null};
-    show('adminCard',false); show('userCard',false); show('playCard',false); show('resultsCard',false);
-    show('authCard',true); show('adminAuthCard',true);
-  }
-
-  async function backToList(){
-    if(SESSION.role==='user'){ show('playCard',false); show('resultsCard',false); show('userCard',true); await showAllTests(); }
-    else if(SESSION.role==='admin'){ show('resultsCard',false); show('playCard',false); show('adminCard',true); await renderAdminLists(); }
-    else { logout(); }
-  }
-
-  /* ——— Parolsiz kirish (faqat ism) ——— */
-  async function loginUser(){
-    const name = ($('userName').value||'').trim();
-    if(!name) return alert('Ism kiriting');
-    SESSION = { role:'user', login: name };
-    const who = $('whoTag'); if(who) who.textContent = name;
-    try{ localStorage.setItem('tm_last_login_name', name); }catch(e){}
-    show('authCard',false); show('adminAuthCard',false); show('userCard',true);
-    await showAllTests();
-  }
-
-  $('userName').addEventListener('keydown', (e)=>{ if(e.key === 'Enter'){ e.preventDefault(); loginUser(); } });
-  $('btnUserLogin').addEventListener('click', loginUser);
-
-  /* ——— Admin auth ——— */
-  async function loginAdmin(){
-    const login = $('adminLogin').value.trim();
-    const code  = $('adminCode').value.trim();
-    if(login.toLowerCase()==='javohir00' && code==='jude857'){
-      SESSION = { role:'admin', login:'ADMIN' };
-      show('authCard',false); show('adminAuthCard',false); show('adminCard',true);
-      await renderAdminLists();
-    } else alert('Admin login yoki kod xato');
-  }
-  $('btnAdminLogin').addEventListener('click', loginAdmin);
-
-  /* ——— Admin: JAVOB PANEL ——— */
-  let ADMIN_KEY = []; // ["A","C","B",...]
-
-  function buildAnswerGrid(){
-    const cnt = Math.max(1, parseInt(($('tCount').value||'1'),10));
-    const wrap = $('answerGrid'); wrap.innerHTML='';
-    ADMIN_KEY = new Array(cnt).fill(null);
-    for(let i=0;i<cnt;i++){
-      const row = document.createElement('div'); row.className='adm-qrow'; row.id = 'adm_q_'+i;
-      row.innerHTML = `<div class="flex"><strong>${i+1}.</strong><div class="space"></div><span class="pill">To‘g‘ri variantni tanlang</span></div>`;
-      const pad = document.createElement('div'); pad.className='answer-pad';
-      ['A','B','C','D'].forEach(ch=>{
-        const b = document.createElement('button'); b.className='opt'; b.dataset.v=ch; b.innerHTML = `<span class="hk">${ch}</span> ${ch}`;
-        b.addEventListener('click', ()=>{
-          [...pad.children].forEach(x=> x.classList.remove('active-admin'));
-          b.classList.add('active-admin');
-          ADMIN_KEY[i] = ch;
-        });
-        pad.appendChild(b);
-      });
-      row.appendChild(pad); wrap.appendChild(row);
-    }
-  }
-  $('btnBuildGrid').addEventListener('click', buildAnswerGrid);
-  let __cntTimer=null; $('tCount').addEventListener('input', ()=>{ clearTimeout(__cntTimer); __cntTimer=setTimeout(buildAnswerGrid, 200); });
-
-  async function saveTest(){
-    const name = ($('tName').value||'').trim();
-    const code = ($('tCode').value||'').trim();
-    const count = Math.max(1, parseInt(($('tCount').value||'1'),10));
-
-    // NEW
-    const analysisLink = normalizeTgLink(($('tAnalysisLink').value||'').trim());
-    if(!isValidTgLink(analysisLink)) return alert('Telegram link xato. Masalan: https://t.me/c/3086001686/2/17260');
-
-    if(!name || !code) return alert('Nom va kodni kiriting');
-    if(!ADMIN_KEY.length || ADMIN_KEY.length!==count || ADMIN_KEY.some(v=>!v)){
-      return alert('Har bir savol uchun A/B/C/D tanlang. Avval "Javob panellari" ni tuzing.');
-    }
-
-    await DB.saveTest({ name, code, count, key: ADMIN_KEY.slice(), analysisLink });
-    alert('✅ Test saqlandi');
-
-    $('tName').value=''; $('tCode').value=''; $('tCount').value=5; $('tAnalysisLink').value='';
-    $('answerGrid').innerHTML=''; ADMIN_KEY=[];
-    await renderAdminLists();
-  }
-  $('btnSaveTest').addEventListener('click', saveTest);
-
-  /* ——— Admin ro‘yxatlari ——— */
-  async function renderAdminLists(){
-    const tests = await DB.allTests();
-    $('testsCount').textContent = `${tests.length} ta`;
-    await drawTestsListForAdmin();
-  }
-
-  async function drawTestsListForAdmin(){
-    const tbox = $('adminTests'); tbox.innerHTML='';
-    const tests = await DB.allTests();
-    if(!tests.length){ tbox.innerHTML = '<div class="muted">Testlar yo‘q</div>'; return; }
-
-    for(const t of tests){
-      const res = await DB.getResults(t.code);
-      const participants = res.length;
-
-      const div = document.createElement('div'); div.className='card'; div.style.margin='6px 0';
-
-      div.innerHTML = `
-        <div class="flex">
-          <strong>${escapeHtml(t.name)}</strong>
-          <div class="space"></div>
-          <span class="pill">kod: ${escapeHtml(t.code)} • ${t.count} savol • 👥 ${participants} ta</span>
-        </div>
-
-        <div class="flex" style="margin-top:8px;flex-wrap:wrap">
-          <button class="btn" data-act="view">Natijalar</button>
-          <button class="btn" data-act="del">O'chirish</button>
-          <button class="btn" data-act="tg">Hisobot nusxasi</button>
-          <button class="btn" data-act="setLink">Tahlil link</button>
-          <div class="space"></div>
-        </div>
-
-        ${t.analysisLink ? `
-          <div class="flex" style="margin-top:10px;flex-wrap:wrap">
-            <span class="pill">Tahlil biriktirilgan</span>
-            <div class="space"></div>
-            <button class="btn tg" data-act="openLink">Test tahlilini ko‘ring</button>
-          </div>` : `
-          <div class="muted" style="margin-top:10px;font-size:13px">
-            Tahlil link qo‘shilmagan (xohlasangiz “Tahlil link” tugmasi orqali qo‘shing).
-          </div>`
-        }
-      `;
-
-      div.querySelector('[data-act="view"]').addEventListener('click', ()=> viewResults(t.code));
-      div.querySelector('[data-act="del"]').addEventListener('click', (e)=> adminDeleteTest(t.code, e.target));
-      div.querySelector('[data-act="tg"]').addEventListener('click', ()=> adminTgReport(t.code));
-
-      // NEW: tahlil linkni qo‘shish/yangilash
-      div.querySelector('[data-act="setLink"]').addEventListener('click', async ()=>{
-        const cur = t.analysisLink || '';
-        const next = prompt('Telegram tahlil linkini kiriting:', cur);
-        if(next === null) return;
-        const normalized = normalizeTgLink(next);
-        if(!isValidTgLink(normalized)) return alert('Telegram link xato. Masalan: https://t.me/c/3086001686/2/17260');
-        await DB.setAnalysisLink(t.code, normalized);
-        alert('✅ Tahlil link saqlandi');
-        await drawTestsListForAdmin();
-      });
-
-      const openBtn = div.querySelector('[data-act="openLink"]');
-      if(openBtn) openBtn.addEventListener('click', ()=> openTgLink(t.analysisLink));
-
-      tbox.appendChild(div);
-    }
-  }
-
-  async function adminDeleteTest(code, el){
-    if(!confirm(`'${code}' kodli testni VA unga tegishli barcha natija/urinishlarni o‘chiraymi?`)) return;
-    const oldText = el.textContent; el.textContent = 'O‘chirilmoqda…'; el.disabled = true;
-    try{ await DB.deleteTestDeep(code); alert('✅ Test, results va attempts to‘liq o‘chirildi.'); await drawTestsListForAdmin(); }
-    catch(e){ alert('❌ O‘chirishda xatolik: '+e.message); }
-    finally{ el.textContent = oldText; el.disabled = false; }
-  }
-
-  /* ——— Admin: Hisobot (faqat nusxa olish) ——— */
-  async function adminTgReport(code){
-    const all = await DB.allTests();
-    const t = all.find(x=>x.code===code);
-    if(!t){ alert('Test topilmadi'); return; }
-    const res = await DB.getResults(code);
-
-    if(!res.length){
-      clipboardOrPrompt(`🧪 Test: ${t.name} (${t.code})\n👥 Ishtirokchilar: 0 ta\nHali natijalar yo‘q.`);
+    if (typeof tg.openLink === "function"){
+      tg.openLink(u);
       return;
     }
-
-    let sumPct = 0; const lines = [];
-    res.forEach((r,i)=>{
-      const pct = Math.round((r.score/r.total)*100);
-      sumPct += pct; const wrong = r.total - r.score;
-      lines.push(`${i+1}) ${r.login} — ${pct}%  ✅ ${r.score} / ❌ ${wrong}`);
-    });
-    const avg = Math.round(sumPct / res.length);
-
-    const head = [
-      `🧪 Test: ${t.name} (${t.code})`,
-      `📝 Savollar: ${t.count} ta`,
-      `👥 Ishtirokchilar: ${res.length} ta`,
-      `📊 O‘rtacha: ${avg}%`,
-      `---`
-    ];
-    clipboardOrPrompt(head.concat(lines).join('\n'));
   }
+  window.open(u, "_blank", "noopener,noreferrer");
+}
 
-  /* ——— User: QUICK ACCESS ——— */
-  $('codeInput').addEventListener('keydown', (e)=>{ if(e.key === 'Enter'){ e.preventDefault(); startByCode(); } });
-  $('btnStartByCode').addEventListener('click', startByCode);
-  $('nameSearch').addEventListener('input', ()=>{ clearTimeout(__searchTimer); __searchTimer = setTimeout(searchByName, 200); });
-  $('nameSearch').addEventListener('keydown', (e)=>{
-    if(!__searchItems.length) return;
-    if(e.key === 'ArrowDown'){ e.preventDefault(); const next = (__searchIndex + 1) % __searchItems.length; setActiveCard(next); }
-    else if(e.key === 'ArrowUp'){ e.preventDefault(); const prev = (__searchIndex - 1 + __searchItems.length) % __searchItems.length; setActiveCard(prev); }
-    else if(e.key === 'Enter'){ e.preventDefault(); const t = __searchItems[__searchIndex]; if(t) startTest(t.code); }
-  });
-  $('btnClearSearch').addEventListener('click', ()=>{ const i = $('nameSearch'); if(i){ i.value=''; } $('testsList').innerHTML = '<div class="muted">Qidiruv tozalandi. “Barcha testlar” ni bosing yoki kod orqali ishga tushiring.</div>'; });
-  $('btnShowAll').addEventListener('click', showAllTests);
 
-  async function startByCode(){
-    if(!SESSION.login) return alert('Avval ism bilan kiring');
-    const code = ($('codeInput').value||'').trim();
-    if(!code) return alert('Kod kiriting');
-    const tests = await DB.allTests();
-    const t = tests.find(x=> (x.code||'').toLowerCase() === code.toLowerCase());
-    if(!t) return alert('Bunday kod topilmadi');
-    await startTest(t.code);
+function openTelegram(url){
+  try{
+    if(tg?.openTelegramLink){ tg.openTelegramLink(url); return true; }
+    if(tg?.openLink){ tg.openLink(url); return true; }
+    openAnyLink(url); return true;
+  }catch(_){
+    try{ openAnyLink(url); return true; }catch(__){ return false; }
   }
+}
 
-  async function searchByName(){
-    if(!SESSION.login) return alert('Avval ism bilan kiring');
-    const q = ($('nameSearch').value||'').trim().toLowerCase();
-    const box = $('testsList'); box.innerHTML='';
-    const tests = await DB.allTests();
-    const filtered = q ? tests.filter(t => (t.name||'').toLowerCase().includes(q)) : [];
-    __searchItems = filtered; __searchIndex = filtered.length ? 0 : -1;
+/* ===== Telegram Report Link (admin can change) ===== */
+const SETTINGS_DOC = doc(db, "settings", "app");
+const LS_REPORT_KEY = "tm_report_link";
 
-    if(!filtered.length){ box.innerHTML = q ? '<div class="muted">Mos test topilmadi</div>' : '<div class="muted">Qidiruv matnini kiriting yoki “Barcha testlar” ni bosing</div>'; return; }
+function getLocalReportLink(){
+  try{ return (localStorage.getItem(LS_REPORT_KEY) || "").trim(); }catch(_){ return ""; }
+}
+function setLocalReportLink(v){
+  try{ localStorage.setItem(LS_REPORT_KEY, v); }catch(_){}
+}
 
-    const frag = document.createDocumentFragment();
-    filtered.forEach((t,i)=>{
-      const card = document.createElement('div'); card.className='card'; card.id = 'srch_'+i; card.style.margin='6px 0';
-      card.innerHTML = `
-        <div class="flex"><strong>${escapeHtml(t.name)}</strong><div class="space"></div><span class="pill">${t.count} savol</span></div>
-        <div class="flex" style="margin-top:10px;flex-wrap:wrap">
-          <button class="btn primary" data-act="start">Testni ishlash</button>
-          <button class="btn" data-act="res">Natijalar</button>
-          <div class="space"></div>
-          <span class="tag">kod: ${escapeHtml(t.code)}</span>
-        </div>
 
-        ${t.analysisLink ? `
-        <div class="flex" style="margin-top:10px;flex-wrap:wrap">
-          <span class="pill">Tahlil</span>
-          <div class="space"></div>
-          <button class="btn tg" data-act="analysis">Test tahlilini ko‘ring</button>
-        </div>` : ``}
-      `;
+/* ===== Local: details auto-hide (1 soat) + last summary =====
+   - "Nusxa olish" bosilgandan keyin 1 soat: savol-javob tafsiloti ko‘rinadi
+   - 1 soatdan keyin: tafsilot ko‘rsatilmaydi (faqat urinish/foiz/o‘rin)
+   - localStorage faqat SUMMARY ni saqlaydi (tafSilotlar yozilmaydi)
+*/
+const LS_HIDE_DETAILS_PREFIX = "tm_hide_details_at__";
+const LS_LAST_SUMMARY_PREFIX = "tm_last_summary__";
 
-      card.querySelector('[data-act="start"]').addEventListener('click', ()=> startTest(t.code));
-      card.querySelector('[data-act="res"]').addEventListener('click', ()=> viewResults(t.code));
+function _lsKey(prefix, code, login){
+  return `${prefix}${String(code||"")}__${String(login||"").toLowerCase()}`;
+}
+function hideDetailsKey(code, login){ return _lsKey(LS_HIDE_DETAILS_PREFIX, code, login); }
+function lastSummaryKey(code, login){ return _lsKey(LS_LAST_SUMMARY_PREFIX, code, login); }
 
-      const a = card.querySelector('[data-act="analysis"]');
-      if(a) a.addEventListener('click', ()=> openTgLink(t.analysisLink));
+function setHideDetailsAt(code, login, ts){
+  try{ localStorage.setItem(hideDetailsKey(code, login), String(Number(ts)||0)); }catch(_){}
+}
+function getHideDetailsAt(code, login){
+  try{ return Number(localStorage.getItem(hideDetailsKey(code, login)) || 0) || 0; }catch(_){ return 0; }
+}
+function clearHideDetailsAt(code, login){
+  try{ localStorage.removeItem(hideDetailsKey(code, login)); }catch(_){}
+}
 
-      frag.appendChild(card);
-    });
-    box.appendChild(frag); setActiveCard(__searchIndex);
+function setLastSummary(code, login, obj){
+  try{ localStorage.setItem(lastSummaryKey(code, login), JSON.stringify(obj||{})); }catch(_){}
+}
+function getLastSummary(code, login){
+  try{
+    const raw = localStorage.getItem(lastSummaryKey(code, login));
+    if(!raw) return null;
+    const o = JSON.parse(raw);
+    return (o && o.code && o.login) ? o : null;
+  }catch(_){ return null; }
+}
+
+// Safety wrappers: qisman nusxa ko‘chirganda ham xatolik chiqmasin
+function safeGetHideAt(code, login){
+  try{ return (typeof getHideDetailsAt === "function") ? getHideDetailsAt(code, login) : 0; }catch(_){ return 0; }
+}
+function safeSetHideAt(code, login, ts){
+  try{ if(typeof setHideDetailsAt === "function") setHideDetailsAt(code, login, ts); }catch(_){}
+}
+async function loadReportLink(){
+  // 1) fast local
+  const local = normalizeUrl(getLocalReportLink());
+  if(local && isTelegramLink(local)){
+    REPORT_LINK = local;
   }
-
-  async function showAllTests(){
-    if(!SESSION.login) return alert('Avval ism bilan kiring');
-    const tests = await DB.allTests();
-    const box = $('testsList'); box.innerHTML='';
-    if(!tests.length){ box.innerHTML = '<div class="muted">Testlar yoʻq</div>'; return; }
-    __searchItems = tests.slice(); __searchIndex = -1; renderTestsCards(tests);
-  }
-  function renderTestsCards(list){
-    const box = $('testsList'); const frag = document.createDocumentFragment();
-    list.forEach((t,i)=>{
-      const card = document.createElement('div'); card.className='card'; card.id='srch_'+i; card.style.margin='6px 0';
-      card.innerHTML = `
-        <div class="flex"><strong>${escapeHtml(t.name)}</strong><div class="space"></div><span class="pill">${t.count} savol</span></div>
-        <div class="flex" style="margin-top:10px;flex-wrap:wrap">
-          <button class="btn primary" data-act="start">Testni ishlash</button>
-          <button class="btn" data-act="res">Natijalar</button>
-          <div class="space"></div>
-          <span class="tag">kod: ${escapeHtml(t.code)}</span>
-        </div>
-
-        ${t.analysisLink ? `
-        <div class="flex" style="margin-top:10px;flex-wrap:wrap">
-          <span class="pill">Tahlil</span>
-          <div class="space"></div>
-          <button class="btn tg" data-act="analysis">Test tahlilini ko‘ring</button>
-        </div>` : ``}
-      `;
-
-      card.querySelector('[data-act="start"]').addEventListener('click', ()=> startTest(t.code));
-      card.querySelector('[data-act="res"]').addEventListener('click', ()=> viewResults(t.code));
-
-      const a = card.querySelector('[data-act="analysis"]');
-      if(a) a.addEventListener('click', ()=> openTgLink(t.analysisLink));
-
-      frag.appendChild(card);
-    });
-    box.appendChild(frag);
-  }
-
-  /* ——— Test o‘ynash ——— */
-  let PLAY = { code:null, key:[], count:0, chosen:[] };
-  let PLAY_FOCUS = 0;
-
-  async function startTest(code){
-    if(!SESSION.login){ alert('Avval ism bilan kiring'); return; }
-    const tests = await DB.allTests();
-    const t = tests.find(x=>x.code===code);
-    if(!t){ alert('Test topilmadi'); return; }
-    const used = await DB.getAttempts(code, SESSION.login);
-    if(used>=3){ alert('Bu testni 3 martadan ko‘p ishlay olmaysiz.'); return; }
-
-    PLAY = { code:code, key: t.key||[], count: t.count||0, chosen: new Array(t.count||0).fill(null) };
-    $('playTitle').textContent = `${t.name} — ${t.count} savol`;
-    renderPlay();
-    show('userCard', false); show('playCard', true);
-  }
-
-  function setFocus(i){
-    if(PLAY.count<=0) return;
-    if(i < 0) i = 0; if(i >= PLAY.count) i = PLAY.count - 1; PLAY_FOCUS = i;
-    document.querySelectorAll('#playBody .card').forEach(el=> el.classList.remove('focus-q'));
-    const row = document.getElementById('qrow_'+i);
-    if(row){ row.classList.add('focus-q'); row.scrollIntoView({ block:'nearest', behavior:'smooth' }); }
-  }
-  function nextIndexFrom(i){ for(let k=i+1;k<PLAY.count;k++){ if(PLAY.chosen[k]==null) return k; } return Math.min(i+1, PLAY.count-1); }
-  function selectOption(i, ch){
-    const row = document.getElementById('qrow_'+i); if(!row) return;
-    const pad = row.querySelector('.answer-pad'); if(!pad) return;
-    [...pad.children].forEach(x=> x.classList.remove('active-user'));
-    const btn = [...pad.children].find(x => (x.dataset.v === ch));
-    if(btn) btn.classList.add('active-user');
-    PLAY.chosen[i] = ch;
-  }
-
-  function renderPlay(){
-    const body = $('playBody'); body.innerHTML='';
-    for(let i=0;i<PLAY.count;i++){
-      const row = document.createElement('div'); row.className='card'; row.style.margin='6px 0'; row.id = 'qrow_'+i;
-      row.innerHTML = `<div class="flex"><strong>${i+1}.</strong><div class="space"></div><span class="pill">Variant tanlang</span></div>`;
-      row.addEventListener('click', ()=> setFocus(i));
-      const pad = document.createElement('div'); pad.className='answer-pad';
-      ['A','B','C','D'].forEach(ch=>{
-        const b = document.createElement('button'); b.className='opt'; b.dataset.v=ch; b.innerHTML = `<span class="hk">${ch}</span> ${ch}`;
-        b.addEventListener('click', ()=>{ [...pad.children].forEach(x=> x.classList.remove('active-user')); b.classList.add('active-user'); PLAY.chosen[i]=ch; setFocus(nextIndexFrom(i)); });
-        pad.appendChild(b);
-      });
-      row.appendChild(pad); body.appendChild(row);
-    }
-    setFocus(0);
-  }
-
-  // Global hotkeys
-  document.addEventListener('keydown', (e)=>{
-    const playOpen = !document.getElementById('playCard').classList.contains('hidden');
-    if(!playOpen) return;
-
-    if(e.key === 'Enter' && (e.ctrlKey || e.metaKey)){ e.preventDefault(); finishTest(); return; }
-    const key = e.key.toLowerCase();
-    if(key === 'arrowdown'){ e.preventDefault(); setFocus(Math.min(PLAY_FOCUS+1, PLAY.count-1)); return; }
-    if(key === 'arrowup'){ e.preventDefault(); setFocus(Math.max(PLAY_FOCUS-1, 0)); return; }
-    const map = { a:'A', b:'B', c:'C', d:'D' };
-    if(map[key]){ e.preventDefault(); selectOption(PLAY_FOCUS, map[key]); setFocus(nextIndexFrom(PLAY_FOCUS)); }
-  });
-
-  async function finishTest(){
-    if(!SESSION.login){ alert('Kirish talab qilinadi'); return; }
-    if(PLAY.chosen.some(x=>x===null)){
-      if(!confirm('Baʼzi savollar belgilanmagan. Baribir yakunlaysizmi?')) return;
-    }
-
-    const details=[]; let score=0;
-    for(let i=0;i<PLAY.count;i++){
-      const correct = PLAY.key[i]; const chosen = PLAY.chosen[i]; const ok = chosen === correct; if(ok) score++;
-      details.push({ q:i+1, chosen: chosen||'-', correct, ok });
-    }
-    await DB.incAttempt(PLAY.code, SESSION.login);
-    const rec = { login: SESSION.login, code: PLAY.code, score, total: PLAY.count, details, date: Date.now() };
-    await DB.upsertBestResult(rec);
-    await viewResults(PLAY.code, rec);
-  }
-
-  /* ——— Natijalar + matn tayyorlash ——— */
-  let __lastTgText = '';
-  function makeTgText(test, rec){
-    const lines = [];
-    const pct = Math.round((rec.score/rec.total)*100);
-    lines.push(`🧪 Test: ${test.name}${test.code ? ' ('+test.code+')':''}`);
-    lines.push(`👤 Ism: ${rec.login}`);
-    lines.push(`📊 Natija: ${rec.score}/${rec.total} — ${pct}%`);
-    lines.push('---');
-    rec.details.forEach(d=>{ lines.push(`${d.q}) tanlandi: ${d.chosen} | to‘g‘ri: ${d.correct} ${d.ok?'✅':'❌'}`); });
-    return lines.join('\n');
-  }
-  function renderDetail(rec){
-    let html = '<div class="card" style="margin:0">';
-    html += `<strong>${escapeHtml(rec.login)}</strong> — <span class="tag">${rec.score}/${rec.total}</span>`;
-    html += '<div style="margin-top:10px"><table><thead><tr><th>#</th><th>Tanlangan</th><th>Toʻgʻri</th><th>Holat</th></tr></thead><tbody>';
-    rec.details.forEach(d=> html += `<tr><td>${d.q}</td><td>${d.chosen}</td><td>${d.correct}</td><td>${d.ok?'<span style="color:#22c55e">to‘g‘ri</span>':'<span style="color:#ef4444">xato</span>'}</td></tr>`);
-    html += '</tbody></table></div></div>';
-    return html;
-  }
-
-  async function viewResults(code, justMade=null){
-    show('userCard', false); show('playCard', false); show('resultsCard', true);
-    const tests = await DB.allTests(); const t = tests.find(x=>x.code===code); if(!t){ alert('Test topilmadi'); return; }
-    $('resTitle').textContent = `${t.name} — Natijalar`;
-
-    const arr = await DB.getResults(code);
-    const lb = $('leaderboardWrap'); lb.innerHTML='';
-    if(!arr.length){ lb.innerHTML = '<div class="muted">Natijalar yoʻq</div>'; }
-    else {
-      let h = '<table><thead><tr><th>#</th><th>Ism</th><th>Ball</th><th>Foiz</th><th>Sana</th></tr></thead><tbody>';
-      arr.forEach((r,i)=>{
-        const mine = (SESSION.login && r.login === SESSION.login);
-        const pct = Math.round((r.score/r.total)*100);
-        h += `<tr class="${mine ? 'my-row' : ''}">
-                <td>${i+1}</td>
-                <td>${escapeHtml(r.login)}</td>
-                <td><strong>${r.score}/${r.total}</strong></td>
-                <td>${pct}%</td>
-                <td>${new Date(r.date).toLocaleString()}</td>
-              </tr>`;
-      });
-      h += '</tbody></table>'; lb.innerHTML = h;
-    }
-
-    const dw = $('detailWrap');
-    const mine = justMade || (SESSION.login ? await DB.bestOfUser(code, SESSION.login) : null);
-    if(mine){ dw.innerHTML = renderDetail(mine); __lastTgText = makeTgText(t, mine); }
-    else { dw.innerHTML = '<div class="muted">O‘zingizning oxirgi urinish tafsilotlari ko‘rinmadi.</div>'; __lastTgText = ''; }
-
-    // NEW: Natijada ham tahlil tugmasi chiqsin
-    if(t.analysisLink){
-      const block = document.createElement('div');
-      block.className = 'card';
-      block.style.marginTop = '12px';
-      block.innerHTML = `
-        <div class="flex" style="flex-wrap:wrap">
-          <strong>Test tahlili</strong>
-          <div class="space"></div>
-          <button class="btn tg" id="btnOpenAnalysis">Test tahlilini ko‘ring</button>
-        </div>
-        <div class="muted" style="margin-top:8px;font-size:13px">Tahlil Telegram link orqali ochiladi.</div>
-      `;
-      dw.appendChild(block);
-      block.querySelector('#btnOpenAnalysis').addEventListener('click', ()=> openTgLink(t.analysisLink));
-    }
-  }
-
-  /* ——— FAQAT NUSXA OLISH ——— */
-  function clipboardOrPrompt(text){
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text)
-        .then(()=> alert('✅ siz (copy qildingiz) Nusxa olindi. telegramga guruhizga kiring va vstavit qiling!(hozir) (Telegramga boring hozir nusxa oldiz , telegramga borasiz vstavit qilasiz).'))
-        .catch(()=> prompt('Matnni qo‘lda nusxalang (Ctrl+C):', text));
+  // 2) Firestore (source of truth)
+  try{
+    const snap = await getDoc(SETTINGS_DOC);
+    const v = normalizeUrl(snap.exists() ? (snap.data().reportLink || "") : "");
+    if(v && isTelegramLink(v)){
+      REPORT_LINK = v;
+      setLocalReportLink(v);
     } else {
-      prompt('Matnni qo‘lda nusxalang (Ctrl+C):', text);
+      // keep default
+      setLocalReportLink(REPORT_LINK);
+    }
+  }catch(_){
+    // offline/no-permission: keep local/default
+  }
+
+  // Update modal input if present
+  if (el.reportLinkInput) el.reportLinkInput.value = REPORT_LINK;
+}
+
+async function saveReportLink(newLink){
+  const v = normalizeUrl(newLink);
+  if(!v) throw new Error("Link bo‘sh bo‘lmasin");
+  if(!isTelegramLink(v)) throw new Error("Telegram link bo‘lsin: https://t.me/...");
+  await setDoc(SETTINGS_DOC, { reportLink: v, updatedAt: Date.now() }, { merge:true });
+  REPORT_LINK = v;
+  setLocalReportLink(v);
+}
+
+/* Modal open/close */
+function openReportModal(){
+  if(!el.reportLinkModal) return;
+  el.reportLinkInput.value = REPORT_LINK;
+  el.reportLinkModal.classList.remove("hidden");
+}
+function closeReportModal(){
+  if(!el.reportLinkModal) return;
+  el.reportLinkModal.classList.add("hidden");
+}
+
+el.btnReportLinkOpen?.addEventListener("click", async ()=>{
+  try{ await loadReportLink(); }catch(_){}
+  openReportModal();
+});
+
+el.btnReportLinkCancel?.addEventListener("click", closeReportModal);
+el.reportLinkModal?.addEventListener("click", (e)=>{
+  const a = e.target?.closest("[data-act='close']");
+  if(a) closeReportModal();
+});
+
+el.btnReportLinkSave?.addEventListener("click", async ()=>{
+  try{
+    await saveReportLink(el.reportLinkInput.value);
+    showToast("✅ Yuborish linki saqlandi.");
+    haptic("light");
+    closeReportModal();
+  }catch(err){
+    showToast("❌ " + err.message);
+  }
+});
+
+/* ===== Local: analysis viewed tracking ===== */
+const VIEW_KEY = "tm_analysis_viewed_codes";
+function getViewed(){
+  try{
+    const x = JSON.parse(localStorage.getItem(VIEW_KEY) || "[]");
+    return Array.isArray(x) ? x : [];
+  }catch(_){ return []; }
+}
+function markViewed(code){
+  const v = new Set(getViewed());
+  v.add(code);
+  try{ localStorage.setItem(VIEW_KEY, JSON.stringify([...v])); }catch(_){}
+}
+function isViewed(code){
+  return getViewed().includes(code);
+}
+
+/* ===== DB layer ===== */
+const CACHE = { tests:null, ts:0, statsByCode:new Map() };
+
+async function allTests(force=false){
+  if(!force && CACHE.tests && (Date.now()-CACHE.ts<15000)) return CACHE.tests;
+  const qs = await getDocs(collection(db,"tests"));
+  let arr=[]; qs.forEach(d=>arr.push(d.data()));
+  // 🔎 Reyting filtri:
+  // - shahboz2768 ko‘rinmaydi
+  // - <20% yoki ≤5 savol urinishlar kiritilmaydi
+  arr = arr.filter(r=>{
+    const login = String(r.login||"").toLowerCase();
+    const total = Number(r.lastTotal||0);
+    const score = Number(r.lastScore||0);
+    const acc = total ? (score/total) : 0;
+    if(login === "shahboz2768") return false;
+    if(total <= 5) return false;
+    if(acc < 0.20) return false;
+    return true;
+  });
+
+  arr.sort((a,b)=> (a.name||"").localeCompare(b.name||""));
+  CACHE.tests=arr; CACHE.ts=Date.now();
+  return arr;
+}
+
+async function saveTest({name, code, count, key, videoLink, pdfLink, analysisLink}){
+  await setDoc(doc(db,"tests", code), {
+    name, code, count, key,
+    videoLink: videoLink || "",
+    pdfLink: pdfLink || "",
+    analysisLink: analysisLink || "",
+    updatedAt: Date.now()
+  });
+  CACHE.tests=null;
+}
+
+async function setLinks(code, patch){
+  await setDoc(doc(db,"tests", code), {...patch, updatedAt: Date.now()}, {merge:true});
+  CACHE.tests=null;
+}
+
+/* ===== Stats (saqlanadigan ma'lumotlar) =====
+  - attempts: nechta ishlagan
+  - correctTotal / wrongTotal: jami to'g'ri/xato (urinshlar bo'yicha yig'iladi)
+  - lastScore/lastTotal/lastDate: oxirgi urinish ko'rsatkichlari
+*/
+function statId(code, login){ return `${code}__${login.toLowerCase()}`; }
+
+async function getStat(code, login){
+  const snap = await getDoc(doc(db,"stats", statId(code, login)));
+  return snap.exists() ? snap.data() : { code, login, attempts:0, correctTotal:0, wrongTotal:0, lastScore:0, lastTotal:0, lastDate:0 };
+}
+
+async function saveStat(code, login, patch){
+  await setDoc(doc(db,"stats", statId(code, login)), patch, {merge:true});
+  // Invalidate cache for this code
+  CACHE.statsByCode.delete(code);
+}
+
+async function getStatsForCode(code, force=false){
+  if(!force && CACHE.statsByCode.has(code)) return CACHE.statsByCode.get(code);
+  const qs = await getDocs(query(collection(db,"stats"), where("code","==",code), limit(500)));
+  let arr=[]; qs.forEach(d=>arr.push(d.data()));
+  // 🔎 Reyting filtri:
+  // - shahboz2768 ko‘rinmaydi
+  // - <20% yoki ≤5 savol urinishlar kiritilmaydi
+  arr = arr.filter(r=>{
+    const login = String(r.login||"").toLowerCase();
+    const total = Number(r.lastTotal||0);
+    const score = Number(r.lastScore||0);
+    const acc = total ? (score/total) : 0;
+    if(login === "shahboz2768") return false;
+    if(total <= 5) return false;
+    if(acc < 0.20) return false;
+    return true;
+  });
+
+  // Ranking: correctTotal desc, then attempts asc (kam urinish — yuqoriroq), then name
+  arr.sort((a,b)=>
+    (Number(b.lastScore||0)-Number(a.lastScore||0)) ||
+    (Number(a.attempts||0)-Number(b.attempts||0)) ||
+    (String(a.login||"").localeCompare(String(b.login||"")))
+  );
+  CACHE.statsByCode.set(code, arr);
+  return arr;
+}
+
+/* ===== Results (doimiy) ===== */
+
+/* ===== PRIVATE HISTORY (faqat shahboz2768) ===== */
+async function savePrivateAttempt(rec){
+  if(String(rec.login||"").toLowerCase() !== "shahboz2768") return;
+
+  const id = `${rec.code}__${rec.login.toLowerCase()}__${Date.now()}`;
+  await setDoc(doc(db, "private_attempts", id), {
+    login: rec.login,
+    code: rec.code,
+    attempt: rec.attempt,
+    score: rec.score,
+    total: rec.total,
+    details: rec.details,
+    date: rec.date,
+    createdAt: Date.now()
+  });
+}
+async function upsertResult(rec){
+  const id = statId(rec.code, rec.login);
+  await setDoc(doc(db,"results", id), rec);
+}
+async function getResult(code, login){
+  const snap = await getDoc(doc(db,"results", statId(code, login)));
+  return snap.exists() ? snap.data() : null;
+}
+/* ===== Delete test deeply ===== */
+async function batchDeleteSnap(snap){
+  const refs=[]; snap.forEach(d=>refs.push(d.ref));
+  for(let i=0;i<refs.length;i+=450){
+    const batch = writeBatch(db);
+    refs.slice(i,i+450).forEach(r=>batch.delete(r));
+    await batch.commit();
+  }
+}
+async function deleteTestDeep(code){
+  // delete stats + results + test doc
+  const stSnap = await getDocs(query(collection(db,"stats"), where("code","==",code), limit(500)));
+  await batchDeleteSnap(stSnap);
+  const tmpSnap = await getDocs(query(collection(db,"results"), where("code","==",code), limit(500)));
+  await batchDeleteSnap(tmpSnap);
+  await deleteDoc(doc(db,"tests", code));
+  CACHE.tests=null;
+  CACHE.statsByCode.delete(code);
+}
+/* ===== Session / Views ===== */
+let SESSION = { role:null, login:null };
+function isPrivateUser(){
+  return String(SESSION?.login || "").toLowerCase() === "shahboz2768";
+}
+
+let ADMIN_KEY = [];
+let PLAY = { code:null, key:[], count:0, chosen:[] };
+let FOCUS = 0;
+let LAST_FOCUS_EL = null;
+let LB_TIMER = null;
+let LAST_COPY_TEXT = "";
+let CURRENT_TEST = null;
+let CURRENT_STATS = [];
+let UNSUB_STATS = null;
+let DETAIL_LOGIN = null;
+let MY_TEMP = null;
+
+function showOnly(section){
+  // sections: auth, admin, user, play, results
+  el.authGrid.classList.toggle("hidden", section !== "auth");
+  el.adminCard.classList.toggle("hidden", section !== "admin");
+  el.userCard.classList.toggle("hidden", section !== "user");
+  el.playCard.classList.toggle("hidden", section !== "play");
+  el.resultsCard.classList.toggle("hidden", section !== "results");
+}
+
+function stopLiveStats(){
+  try{ UNSUB_STATS?.(); }catch(_){}
+  UNSUB_STATS = null;
+  if(LB_TIMER){ clearTimeout(LB_TIMER); LB_TIMER = null; }
+}
+
+function logout(){
+  stopLiveStats();
+  SESSION = {role:null, login:null};
+  CURRENT_TEST = null;
+  showOnly("auth");
+}
+
+el.btnLogoutAdmin.addEventListener("click", logout);
+el.btnLogoutUser.addEventListener("click", logout);
+
+function esc(s){
+  return String(s||"").replace(/[&<>"']/g, c=>({ "&":"&amp;","<":"&lt;",">":"&gt;", '"':"&quot;","'":"&#039;" }[c]));
+}
+
+/* ===== Admin: build answer grid ===== */
+function buildAnswerGrid(){
+  const cnt = Math.max(1, parseInt(el.tCount.value||"1",10));
+  el.answerGrid.innerHTML = "";
+  ADMIN_KEY = new Array(cnt).fill(null);
+
+  for(let i=0;i<cnt;i++){
+    const row = document.createElement("div");
+    row.className = "qrow";
+    row.innerHTML = `
+      <div class="qrow-head">
+        <div class="qn">${i+1}.</div>
+        <div class="pill">To‘g‘ri variantni tanlang</div>
+      </div>
+      <div class="pad">
+        ${["A","B","C","D"].map(ch=>`<button class="opt" type="button" data-i="${i}" data-v="${ch}">${ch}</button>`).join("")}
+      </div>
+    `;
+    row.addEventListener("click", (e)=>{
+      const b = e.target?.closest("button.opt");
+      if(!b) return;
+      const idx = parseInt(b.dataset.i,10);
+      const v = b.dataset.v;
+      const pad = row.querySelector(".pad");
+      pad.querySelectorAll(".opt").forEach(x=>x.classList.remove("admin-on"));
+      b.classList.add("admin-on");
+      ADMIN_KEY[idx] = v;
+      haptic("light");
+    });
+    el.answerGrid.appendChild(row);
+  }
+}
+el.btnBuildGrid.addEventListener("click", buildAnswerGrid);
+el.tCount.addEventListener("input", ()=>{
+  clearTimeout(buildAnswerGrid._t);
+  buildAnswerGrid._t = setTimeout(buildAnswerGrid, 200);
+});
+
+/* ===== Admin: save test ===== */
+el.btnSaveTest.addEventListener("click", async ()=>{
+  const name = (el.tName.value||"").trim();
+  const code = (el.tCode.value||"").trim();
+  const count = Math.max(1, parseInt(el.tCount.value||"1",10));
+
+  const videoLink = normalizeUrl(el.tVideoLink.value);
+  const pdfLink = normalizeUrl(el.tPdfLink.value);
+  const analysisLink = normalizeUrl(el.tAnalysisLink.value);
+
+  if(!name) return showToast("Test nomini kiriting.");
+  if(!code) return showToast("Maxsus kodni kiriting.");
+
+  if(!ADMIN_KEY.length) return showToast("Avval “Javob panellari”ni bosing.");
+  if(ADMIN_KEY.length !== count || ADMIN_KEY.some(x=>!x)) return showToast("Har bir savol uchun A/B/C/D tanlang.");
+
+  // Links are optional; if filled, must be https
+  if(!isValidUrl(videoLink)) return showToast("Video link xato (https://...)");
+  if(!isValidUrl(pdfLink)) return showToast("PDF link xato (https://...)");
+  if(analysisLink && !isTelegramLink(analysisLink)) return showToast("Test tahlili link Telegram bo‘lsin: https://t.me/...");
+
+  await saveTest({name, code, count, key: ADMIN_KEY.slice(), videoLink, pdfLink, analysisLink});
+  showToast("✅ Test saqlandi.");
+  haptic("medium");
+
+  el.tName.value = "";
+  el.tCode.value = "";
+  el.tCount.value = "5";
+  el.tVideoLink.value = "";
+  el.tPdfLink.value = "";
+  el.tAnalysisLink.value = "";
+  el.answerGrid.innerHTML = "";
+  ADMIN_KEY = [];
+
+  await renderAdmin();
+});
+
+el.btnAdminRefresh.addEventListener("click", ()=>{
+  renderAdmin(true).catch(err=>{
+    console.error(err);
+    showToast("⚠️ Admin yangilanmadi. Internet/Firebase rules ni tekshiring.");
+  });
+});
+
+async function renderAdmin(force=false){
+  const tests = await allTests(force);
+  el.testsCount.textContent = `${tests.length} ta`;
+  el.adminTests.innerHTML = "";
+
+  if(!tests.length){
+    el.adminTests.innerHTML = `<div class="item"><div class="item-title">Testlar yo‘q</div><div class="item-meta">Yangi test yarating.</div></div>`;
+    return;
+  }
+
+  for(const t of tests){
+    // PERF: results sonini har test uchun oldindan o‘qimaymiz (admin tez ochilishi uchun)
+    const resCount = null;
+    const div = document.createElement("div");
+    div.className = "item";
+
+    const has = (x)=> !!(t[x] && String(t[x]).trim());
+    div.innerHTML = `
+      <div class="item-top">
+        <div>
+          <div class="item-title">${esc(t.name)}</div>
+          <div class="item-meta">kod: <b>${esc(t.code)}</b> • ${Number(t.count||0)} savol</div>
+        </div>
+        <span class="pill">Admin</span>
+      </div>
+
+      <div class="item-actions">
+        <button class="btn" type="button" data-act="res">Natijalar</button>
+        <button class="btn" type="button" data-act="copy">Hisobot nusxasi</button>
+        <button class="btn" type="button" data-act="sendTg">Telegramga yuborish</button>
+        <button class="btn" type="button" data-act="links">Linklar</button>
+        <button class="btn ghost" type="button" data-act="del">O‘chirish</button>
+      </div>
+
+      <div class="materials">
+        ${has("videoLink") ? `<span class="chip video" data-act="openVideo">🎬 Video</span>` : ``}
+        ${has("pdfLink") ? `<span class="chip pdf" data-act="openPdf">📄 PDF</span>` : ``}
+        ${has("analysisLink") ? `<span class="chip analysis" data-act="openAnalysis">🧾 Tahlil</span>` : ``}
+      </div>
+    `;
+
+    div.addEventListener("click", async (e)=>{
+      const actBtn = e.target?.closest("[data-act]");
+      if(!actBtn) return;
+      const act = actBtn.dataset.act;
+
+      if(act === "res"){
+        await viewResults(t.code);
+        return;
+      }
+      if(act === "copy"){
+        await copyAdminReport(t.code);
+        return;
+      }
+      if(act === "sendTg"){
+        // Admin: barcha natijalarni Telegramga yuborish (copy + chatga o‘tish)
+        const test = (await allTests()).find(x=>x.code===t.code) || t;
+        const resArr = await getStatsForCode(t.code, true);
+        const text = makeAllStatsText(test, resArr);
+        await sendResultToTelegram(text);
+        return;
+      }
+      if(act === "del"){
+        if(!confirm(`'${t.code}' testini VA barcha natijalarni o‘chiraymi?`)) return;
+        actBtn.textContent = "O‘chirilmoqda...";
+        actBtn.disabled = true;
+        try{
+          await deleteTestDeep(t.code);
+          showToast("✅ O‘chirildi.");
+          await renderAdmin(true);
+        }catch(err){
+          showToast("❌ Xatolik: " + err.message);
+        }finally{
+          actBtn.textContent = "O‘chirish";
+          actBtn.disabled = false;
+        }
+        return;
+      }
+      if(act === "links"){
+        const nextVideo = prompt("🎬 Video tahlil linki (https://...)", t.videoLink || "") ?? null;
+        if(nextVideo === null) return;
+        const nextPdf = prompt("📄 PDF test linki (https://...)", t.pdfLink || "") ?? null;
+        if(nextPdf === null) return;
+        const nextAnalysis = prompt("🧾 Test tahlili Telegram linki (https://t.me/...)", t.analysisLink || "") ?? null;
+        if(nextAnalysis === null) return;
+
+        const v = normalizeUrl(nextVideo);
+        const p = normalizeUrl(nextPdf);
+        const a = normalizeUrl(nextAnalysis);
+
+        if(!isValidUrl(v)) return showToast("Video link xato (https://...)");
+        if(!isValidUrl(p)) return showToast("PDF link xato (https://...)");
+        if(a && !isTelegramLink(a)) return showToast("Tahlil link Telegram bo‘lsin: https://t.me/...");
+
+        await setLinks(t.code, { videoLink: v, pdfLink: p, analysisLink: a });
+        showToast("✅ Linklar saqlandi.");
+        await renderAdmin(true);
+        return;
+      }
+
+      if(act === "openVideo") openAnyLink(t.videoLink);
+      if(act === "openPdf") openAnyLink(t.pdfLink);
+      if(act === "openAnalysis") openAnyLink(t.analysisLink);
+    });
+
+    el.adminTests.appendChild(div);
+  }
+}
+
+/* ===== User login ===== */
+el.btnUserLogin.addEventListener("click", async ()=>{
+  const name = (el.userName.value||"").trim();
+  if(!name) return showToast("Ism kiriting.");
+  SESSION = { role:"user", login:name };
+  el.whoTag.textContent = name;
+  try{ localStorage.setItem("tm_last_name", name); }catch(_){}
+
+  // Avval ekranga o‘tamiz — keyin testlarni yuklaymiz (xato bo‘lsa ham ekran ochiq qoladi)
+  showOnly("user");
+  haptic("light");
+
+  try{
+    await renderUser(true);
+  }catch(err){
+    console.error(err);
+    el.testsList.innerHTML = `
+      <div class="item">
+        <div class="item-title">Testlar yuklanmadi</div>
+        <div class="item-meta">Internet/Firebase ruxsat (rules) yoki konfiguratsiyada muammo bo‘lishi mumkin. “Barcha testlar” ni qayta bosing yoki keyinroq urinib ko‘ring.</div>
+      </div>`;
+    showToast("⚠️ Testlarni yuklab bo‘lmadi. Hosting (https://) va Firestore rules ni tekshiring.");
+  }
+});
+
+
+el.userName.addEventListener("keydown", (e)=>{
+  if(e.key === "Enter"){ e.preventDefault(); el.btnUserLogin.click(); }
+});
+
+/* ===== Admin login ===== */
+el.btnAdminLogin.addEventListener("click", async ()=>{
+  const login = (el.adminLogin.value||"").trim();
+  const code  = (el.adminCode.value||"").trim();
+
+  // Admin tekshiruvi (o'zingizga moslab o'zgartirasiz)
+  if(login.toLowerCase()==="javohir00" && code==="jude857"){
+    SESSION = { role:"admin", login:"ADMIN" };
+
+    showOnly("admin");
+    haptic("light");
+
+    try{
+      await renderAdmin(true);
+    }catch(err){
+      console.error(err);
+      el.adminList.innerHTML = `
+        <div class="item">
+          <div class="item-title">Admin panel yuklanmadi</div>
+          <div class="item-meta">Firebase ruxsat (rules) yoki internet muammosi bo‘lishi mumkin. “Yangilash” ni bosing.</div>
+        </div>`;
+      showToast("⚠️ Admin maʼlumotlari yuklanmadi. Firestore rules ni tekshiring.");
+    }
+    return;
+  }
+
+  showToast("Admin login yoki kod xato.");
+});
+
+
+
+/* ===== Personal history (shahboz2768) ===== */
+async function loadMyTests(){
+  if(String(SESSION.login||"").toLowerCase() !== "shahboz2768"){
+    return showToast("Bu bo‘lim faqat siz uchun.");
+  }
+  const wrap = document.getElementById("myTestsWrap");
+  wrap.innerHTML = "Yuklanmoqda...";
+  const qs = await getDocs(query(collection(db,"private_attempts"), where("login","==","shahboz2768")));
+  let arr=[]; qs.forEach(d=>arr.push(d.data()));
+  if(!arr.length){ wrap.innerHTML = "<div class='item'>Tarix yo‘q</div>"; return; }
+
+  // guruhlash: test bo‘yicha
+  const byCode = {};
+  arr.forEach(r=>{
+    if(!byCode[r.code]) byCode[r.code]=[];
+    byCode[r.code].push(r);
+  });
+
+  wrap.innerHTML = "";
+  Object.keys(byCode).forEach(code=>{
+    const list = byCode[code].sort((a,b)=>b.date-a.date);
+    const last = list[0];
+    const acc = last.total ? Math.round((last.score/last.total)*100) : 0;
+
+    // AI tavsiya (kod bosh harfi)
+    const topic = code.charAt(0).toUpperCase();
+    let advice = "Umumiy takrorlash tavsiya etiladi.";
+    if(topic==="A") advice="Adabiyot mavzulari bo‘yicha tahliliy o‘qish kuchaytiring.";
+    if(topic==="O") advice="Ona tili: imlo va grammatik testlarni ko‘proq ishlang.";
+    if(topic==="T") advice="Test strategiyasi va vaqt taqsimotini mashq qiling.";
+
+    const div = document.createElement("div");
+    div.className="item";
+    div.innerHTML = `
+      <div class="item-title">${code} — Oxirgi: ${last.score}/${last.total} (${acc}%)</div>
+      <div class="item-meta">AI tavsiya: ${advice}</div>
+      <details style="margin-top:8px">
+        <summary>Barcha urinishlar</summary>
+        <div style="margin-top:6px;font-size:13px">
+          ${list.map(x=>`#${x.attempt} — ${x.score}/${x.total}`).join("<br>")}
+        </div>
+      </details>
+    `;
+    wrap.appendChild(div);
+  });
+}
+
+document.getElementById("btnMyTests")?.addEventListener("click", loadMyTests);
+/* ===== User: list / search ===== */
+el.btnShowAll.addEventListener("click", ()=>{
+  renderUser(true).catch(err=>{
+    console.error(err);
+    showToast("⚠️ Testlar yuklanmadi. Internet/Firebase rules ni tekshiring.");
+  });
+});
+el.btnClearSearch.addEventListener("click", ()=>{
+  el.nameSearch.value = "";
+  el.testsList.innerHTML = `<div class="item"><div class="item-title">Qidiruv tozalandi</div><div class="item-meta">“Barcha testlar” ni bosing.</div></div>`;
+});
+el.btnStartByCode.addEventListener("click", async ()=>{
+  const code = (el.codeInput.value||"").trim();
+  if(!code) return showToast("Kod kiriting.");
+  const tests = await allTests();
+  const t = tests.find(x => (x.code||"").toLowerCase() === code.toLowerCase());
+  if(!t) return showToast("Test topilmadi.");
+  await startTest(t.code);
+});
+
+el.codeInput.addEventListener("keydown", (e)=>{
+  if(e.key === "Enter"){ e.preventDefault(); el.btnStartByCode.click(); }
+});
+
+el.nameSearch.addEventListener("input", ()=>{
+  clearTimeout(el.nameSearch._t);
+  el.nameSearch._t = setTimeout(()=>renderUser(false), 180);
+});
+
+async function renderUser(force=false){
+  const tests = await allTests(force);
+  const q = (el.nameSearch.value||"").trim().toLowerCase();
+  const list = q ? tests.filter(t => (t.name||"").toLowerCase().includes(q)) : tests;
+
+  el.testsList.innerHTML = "";
+  if(!list.length){
+    el.testsList.innerHTML = `<div class="item"><div class="item-title">Topilmadi</div><div class="item-meta">Boshqa nom yoki kod bilan urinib ko‘ring.</div></div>`;
+    return;
+  }
+
+  for(const t of list){
+    const has = (x)=> !!(t[x] && String(t[x]).trim());
+    const div = document.createElement("div");
+    div.className = "item";
+
+    // Analysis rule:
+    // - video/pdf: always visible if exists
+    // - analysis: visible only after test finished + user opened analysis once (isViewed)
+    const showAnalysisChip = has("analysisLink");
+
+    div.innerHTML = `
+      <div class="item-top">
+        <div>
+          <div class="item-title">${esc(t.name)}</div>
+          <div class="item-meta">kod: <b>${esc(t.code)}</b> • ${Number(t.count||0)} savol</div>
+        </div>
+        <span class="pill">Test</span>
+      </div>
+
+      <div class="item-actions">
+        <button class="btn primary" type="button" data-act="start">Testni ishlash</button>
+        <button class="btn" type="button" data-act="res">Natijalar</button>
+      </div>
+
+      <div class="materials">
+        ${has("videoLink") ? `<span class="chip video" data-act="video">🎬 Video tahlil</span>` : ``}
+        ${has("pdfLink") ? `<span class="chip pdf" data-act="pdf">📄 PDF test</span>` : ``}
+        ${showAnalysisChip ? `<span class="chip analysis" data-act="analysis">🧾 Test tahlili</span>` : ``}
+      </div>
+    `;
+
+    div.addEventListener("click", async (e)=>{
+      const a = e.target?.closest("[data-act]");
+      if(!a) return;
+      const act = a.dataset.act;
+
+      if(act === "start") return startTest(t.code);
+      if(act === "res") return viewResults(t.code);
+      if(act === "video") return openAnyLink(t.videoLink);
+      if(act === "pdf") return openAnyLink(t.pdfLink);
+      if(act === "analysis") return openAnyLink(t.analysisLink);
+    });
+
+    el.testsList.appendChild(div);
+  }
+}
+
+/* ===== Play flow ===== */
+el.btnBack1.addEventListener("click", ()=>{
+  stopLiveStats();
+  showOnly("user");
+  renderUser(false);
+});
+el.btnBack2.addEventListener("click", ()=>{
+  stopLiveStats();
+  showOnly("user");
+  renderUser(false);
+});
+
+async function startTest(code){
+  const tests = await allTests();
+  const t = tests.find(x=>x.code===code);
+  if(!t) return showToast("Test topilmadi.");
+  // Urinishlar cheksiz: cheklov yo‘q
+
+  CURRENT_TEST = t;
+  PLAY = {
+    code: t.code,
+    key: t.key || [],
+    count: Number(t.count||0),
+    chosen: new Array(Number(t.count||0)).fill(null)
+  };
+  FOCUS = 0;
+  LAST_FOCUS_EL = null;
+  el.playTitle.textContent = `${t.name} — ${PLAY.count} savol`;
+  renderPlay();
+  showOnly("play");
+}
+
+function renderPlay(){
+  el.playBody.innerHTML = "";
+  for(let i=0;i<PLAY.count;i++){
+    const row = document.createElement("div");
+    row.className = "qrow";
+    row.id = `q_${i}`;
+    row.innerHTML = `
+      <div class="qrow-head">
+        <div class="qn">${i+1}.</div>
+        <div class="pill">Variant tanlang</div>
+      </div>
+      <div class="pad">
+        ${["A","B","C","D"].map(ch=>`<button class="opt" type="button" data-i="${i}" data-v="${ch}">${ch}</button>`).join("")}
+      </div>
+    `;
+    row.addEventListener("click", (e)=>{
+      const b = e.target?.closest("button.opt");
+      if(!b) { setFocus(i); return; }
+      const idx = parseInt(b.dataset.i,10);
+      const v = b.dataset.v;
+      choose(idx, v);
+      setFocus(nextUnanswered(idx));
+      haptic("light");
+    });
+    el.playBody.appendChild(row);
+  }
+  setFocus(0);
+}
+
+function setFocus(i){
+  if(PLAY.count<=0) return;
+  if(i<0) i=0;
+  if(i>=PLAY.count) i=PLAY.count-1;
+  FOCUS = i;
+
+  if(LAST_FOCUS_EL) LAST_FOCUS_EL.classList.remove("focus");
+  const row = $("q_"+i);
+  if(row){
+    row.classList.add("focus");
+    LAST_FOCUS_EL = row;
+    row.scrollIntoView({block:"nearest", behavior:"auto"});
+  }else{
+    LAST_FOCUS_EL = null;
+  }
+}
+
+function choose(i, v){
+  PLAY.chosen[i] = v;
+  const row = $("q_"+i);
+  if(!row) return;
+  const pad = row.querySelector(".pad");
+  pad.querySelectorAll(".opt").forEach(x=>{
+    x.classList.remove("user-on","correct","wrong")
+  });
+  const btn = pad.querySelector(`.opt[data-v="${v}"]`);
+  btn?.classList.add("user-on");
+
+  const correct = PLAY.key[i];
+  if(v === correct){
+    btn?.classList.add("correct");
+    setTimeout(()=>setFocus(nextUnanswered(i)),300);
+  }else{
+    btn?.classList.add("wrong");
+    const rightBtn = pad.querySelector(`.opt[data-v="${correct}"]`);
+    rightBtn?.classList.add("correct");
+    setTimeout(()=>setFocus(nextUnanswered(i)),600);
+  }
+}
+
+function nextUnanswered(from){
+  for(let k=from+1;k<PLAY.count;k++){
+    if(PLAY.chosen[k] == null) return k;
+  }
+  return Math.min(from+1, PLAY.count-1);
+}
+
+// Hotkeys
+document.addEventListener("keydown", (e)=>{
+  if(el.playCard.classList.contains("hidden")) return;
+
+  if(e.key === "Enter" && (e.ctrlKey || e.metaKey)){
+    e.preventDefault();
+    finishTest();
+    return;
+  }
+  if(e.key === "ArrowDown"){ e.preventDefault(); setFocus(FOCUS+1); return; }
+  if(e.key === "ArrowUp"){ e.preventDefault(); setFocus(FOCUS-1); return; }
+
+  const map = { a:"A", b:"B", c:"C", d:"D" };
+  const k = e.key.toLowerCase();
+  if(map[k]){
+    e.preventDefault();
+    choose(FOCUS, map[k]);
+    setFocus(nextUnanswered(FOCUS));
+  }
+});
+
+el.finishBtn.addEventListener("click", finishTest);
+
+async function finishTest(){
+  if(PLAY.chosen.some(x=>x==null)){
+    if(!confirm("Baʼzi savollar belgilanmagan. Baribir yakunlaysizmi?")) return;
+  }
+
+  // Score + details
+  let score = 0;
+  const details = [];
+  for(let i=0;i<PLAY.count;i++){
+    const correct = PLAY.key[i];
+    const chosen = PLAY.chosen[i] || "-";
+    const ok = chosen === correct;
+    if(ok) score++;
+    details.push({ q:i+1, chosen, correct, ok });
+  }
+
+  const wrong = PLAY.count - score;
+
+  // Old stat — birinchi urinishni aniqlash uchun
+  const prev = await getStat(PLAY.code, SESSION.login);
+  const prevAttempts = Number(prev.attempts||0);
+
+  // Update stats (doimiy)
+  const next = {
+    code: PLAY.code,
+    login: SESSION.login,
+    attempts: prevAttempts + 1,
+    correctTotal: Number(prev.correctTotal||0) + score,
+    wrongTotal: Number(prev.wrongTotal||0) + wrong,
+    lastScore: score,
+    lastTotal: PLAY.count,
+    lastDate: Date.now(),
+    updatedAt: Date.now()
+  };
+  await saveStat(PLAY.code, SESSION.login, next);
+
+  // Result details (doimiy — o‘chmaydi)
+  const resultRec = {
+    login: SESSION.login,
+    code: PLAY.code,
+    attempt: prevAttempts + 1,
+    score,
+    total: PLAY.count,
+    details,
+    date: Date.now()
+  };
+  await upsertResult(resultRec);
+
+  // 🔐 Private: har bir urinishni Firebase’da alohida saqlash
+  await savePrivateAttempt(resultRec);
+
+  // Local summary: faqat qisqa ma'lumot (tafSilot localStorage-ga yozilmaydi)
+  try{
+    clearHideDetailsAt(PLAY.code, SESSION.login); // yangi natija chiqqanda tafsilotlar ochiq bo‘lsin
+    setLastSummary(PLAY.code, SESSION.login, {
+      code: PLAY.code,
+      login: SESSION.login,
+      attempts: prevAttempts + 1,
+      correctTotal: score,
+      wrongTotal: wrong,
+      acc: PLAY.count ? Math.round((score/PLAY.count)*100) : 0,
+      rank: null,
+      participants: null,
+      updatedAt: Date.now()
+    });
+  }catch(_){}
+
+  // Natijani ko'rsatish
+  await viewResults(PLAY.code, resultRec);
+  haptic("medium");
+  // Avtomatik nusxa + Telegram ochish o‘chirildi: faqat "Nusxa olish" tugmasi orqali.
+}
+/* ===== Results ===== */
+function pct(rec){ return Math.round((rec.score/rec.total)*100); }
+
+
+function makeAllStatsText(test, arr){
+  let text = `🏁 Reyting (tafSilotlar 1 soatda yashiriladi)\n🧪 Test: ${test.name} (${test.code})\n📝 Savollar: ${test.count} ta\n👥 Ishtirokchilar: ${arr.length} ta\n---\n`;
+  if(!arr.length){
+    text += "Hali natijalar yo‘q.\n";
+    return text;
+  }
+  arr.slice(0, 200).forEach((r,i)=>{
+    const total = (Number(r.correctTotal||0) + Number(r.wrongTotal||0));
+    const acc = total ? Math.round((Number(r.correctTotal||0) / total) * 100) : 0;
+    const badge = i===0 ? "🥇" : i===1 ? "🥈" : i===2 ? "🥉" : "🏅";
+    text += `${badge} ${i+1}) ${r.login} | urinish: ${Number(r.attempts||0)} | ✅ ${Number(r.correctTotal||0)} | ❌ ${Number(r.wrongTotal||0)} | ${acc}%\n`;
+  });
+  return text;
+}
+
+function makeCopyText(test, rec){
+  const lines = [];
+  lines.push(`🧪 Test: ${test.name} (${test.code})`);
+  lines.push(`👤 Ism: ${rec.login}`);
+  lines.push(`📊 Natija: ${rec.score}/${rec.total} — ${pct(rec)}%`);
+  lines.push("---");
+  rec.details.forEach(d=> lines.push(`${d.q}) tanlandi: ${d.chosen} | to‘g‘ri: ${d.correct} ${d.ok?"✅":"❌"}`));
+  return lines.join("\n");
+}
+
+function makeShareText(test, rec, statsArr){
+  // Qisqa va qulay (Telegramga paste qilish uchun)
+  const score = Number(rec.score||0);
+  const total = Number(rec.total||0);
+  const wrong = total - score;
+  const acc = total ? Math.round((score/total)*100) : 0;
+
+  let rank = null, participants = null, attempts = null;
+  if(Array.isArray(statsArr) && statsArr.length && rec.login){
+    const idx = statsArr.findIndex(r=>String(r.login)===String(rec.login));
+    if(idx>=0){
+      rank = idx+1;
+      participants = statsArr.length;
+      attempts = Number(statsArr[idx].attempts||0);
+    }
+  }
+  // fallback: local summary (agar Firestore hali kelmagan bo‘lsa)
+  if((rank==null || participants==null || attempts==null) && test?.code && rec.login){
+    const ls = getLastSummary(test.code, rec.login);
+    if(ls){
+      if(rank==null && ls.rank!=null) rank = ls.rank;
+      if(participants==null && ls.participants!=null) participants = ls.participants;
+      if(attempts==null && ls.attempts!=null) attempts = ls.attempts;
     }
   }
 
-  function copyResult(){
-    if(!__lastTgText){
-      alert('Avval o‘zingizning natijangizni oching (yoki testni tugating).');
-      return;
-    }
-    clipboardOrPrompt(__lastTgText);
+  const lines = [];
+  lines.push(`🧪 Test: ${test?.name||"Test"} (${test?.code||""})`);
+  lines.push(`👤 Ism: ${rec.login}`);
+  if(attempts!=null) lines.push(`🔁 Urinish: ${attempts}`);
+  lines.push(`✅ To‘g‘ri: ${score}   ❌ Xato: ${wrong}   📊 ${acc}%`);
+  if(rank!=null && participants!=null) lines.push(`🏅 O‘rin: #${rank} / ${participants}`);
+  lines.push(`🕒 Sana: ${new Date(rec.date||Date.now()).toLocaleString()}`);
+  
+  // Savolma-s...: to‘liq ishlangan natija (Telegramga paste qilish uchun)
+  if(Array.isArray(rec.details) && rec.details.length){
+    lines.push("");
+    lines.push("📌 Savollar bo‘yicha natija:");
+    rec.details.forEach(d=>{
+      const q = (d && d.q!=null) ? d.q : "";
+      const ok = (d && d.ok) ? "✅" : "❌";
+      const chosen = (d && d.chosen!=null) ? String(d.chosen) : "-";
+      const correct = (d && d.correct!=null) ? String(d.correct) : "-";
+      
+      const okIcon = (d && d.ok) ? "✅" : "❌";
+      const chosenTxt = (d && d.chosen!=null) ? String(d.chosen) : "-";
+      const correctTxt = (d && d.correct!=null) ? String(d.correct) : "-";
+      lines.push(`#${q} ${okIcon}  Siz: 🟢 ${chosenTxt}   |   To‘g‘ri: 🔴 ${correctTxt}`);
+
+    });
+  }
+return lines.join("\n");
+}
+
+
+function renderMyDetail(rec, isOther=false, canShowDetails=true){
+  const score = Number(rec.score||0);
+  const total = Number(rec.total||0);
+  const wrong = total - score;
+  const acc = total ? Math.round((score/total)*100) : 0;
+
+  const who = isOther ? `<div class="pill">👤 ${esc(rec.login||"")}</div>` : `<div class="pill ok">👤 Siz</div>`;
+  const when = rec.date ? new Date(rec.date).toLocaleString() : "-";
+
+  let html = `
+    <div class="item">
+      <div class="row between" style="gap:10px;flex-wrap:wrap">
+        <div class="item-title">Natija tafsiloti</div>
+        <div class="row" style="gap:8px;flex-wrap:wrap">
+          ${who}
+          <div class="pill">${acc}%</div>
+          <div class="pill">🕒 ${when}</div>
+        </div>
+      </div>
+      <div class="kpis">
+        <div class="kpi"><div class="k">✅ To‘g‘ri</div><div class="v">${score}</div></div>
+        <div class="kpi"><div class="k">❌ Xato</div><div class="v">${wrong}</div></div>
+        <div class="kpi"><div class="k">📝 Jami</div><div class="v">${total}</div></div>
+      </div>
+    </div>
+  `;
+
+  if(canShowDetails && Array.isArray(rec.details) && rec.details.length){
+    html += `<div class="item"><div class="item-title">Savolma-savol</div><div class="item-meta">✅ yashil — to‘g‘ri, ❌ qizil — xato</div><div class="grid">`;
+    rec.details.forEach(d=>{
+      const ok = !!d.ok;
+      html += `<div class="qrow ${ok?"ok":"bad"}">
+        <div class="qnum">#${d.q}</div>
+        <div class="qans">
+          <span class="tag ${ok?"ok":"bad"}">${ok?"✅":"❌"}</span>
+          <span class="tag">Siz: <b>${esc(d.chosen||"-")}</b></span>
+          <span class="tag">To‘g‘ri: <b>${esc(d.correct||"-")}</b></span>
+        </div>
+      </div>`;
+    });
+    html += `</div></div>`;
   }
 
-  // Qidiruv maydoni bo'sh bo'lganda yordamchi yozuv
-  $('testsList').innerHTML = '<div class="muted">Kodni kiriting yoki “Barcha testlar” ni bosing</div>';
+  else if(!canShowDetails && !isOther){
+    html += `<div class="item">
+      <div class="item-title">Tafsilotlar yashirildi</div>
+      <div class="item-meta">Nusxa olingandan keyin 1 soat o‘tgach savol-javob tafsilotlari ko‘rsatilmaydi. Reyting, urinish va foiz saqlanib qoladi.</div>
+    </div>`;
+  }
 
-  // Tugma handlerlari
-  $('btnBack1').addEventListener('click', backToList);
-  $('btnBack2').addEventListener('click', backToList);
-  $('btnLogout1').addEventListener('click', logout);
-  $('btnLogout2').addEventListener('click', logout);
-  $('finishBtn').addEventListener('click', finishTest);
-  $('btnCopy').addEventListener('click', copyResult);
+  return html;
+}
 
-  // Boot
-  (function boot(){ try{ const last = localStorage.getItem('tm_last_login_name'); if(last){ $('userName').value = last; } }catch(e){} })();
 
-  // Start holat
-  logout();
+function sortStats(arr){
+  // Ranking: correctTotal desc, then attempts asc, then name
+  arr.sort((a,b)=>
+    (Number(b.lastScore||0)-Number(a.lastScore||0)) ||
+    (Number(a.attempts||0)-Number(b.attempts||0)) ||
+    (String(a.login||"").localeCompare(String(b.login||"")))
+  );
+  return arr;
+}
+
+function renderLeaderboard(statsArr){
+
+  if(isPrivateUser()){
+    el.leaderboardWrap.innerHTML = `<div class="item">
+      <div class="item-title">🔒 Maxfiy rejim</div>
+      <div class="item-meta">Sizning natijangiz faqat o‘zingizga ko‘rinadi va reytingga saqlanmaydi.</div>
+    </div>`;
+    return;
+  }
+
+  const isAdmin = SESSION?.role === "admin";
+  const MAX_ROWS = isAdmin ? 200 : 50;
+  const maskName = (s)=>{
+    s = String(s||"");
+    if(isAdmin) return esc(s);
+    if(SESSION?.login && s === SESSION.login) return `<b>${esc(s)}</b>`;
+    if(s.length<=2) return esc(s[0]||"") + "*";
+    return esc(s[0]) + "•••" + esc(s[s.length-1]);
+  };
+
+  if(!statsArr.length){
+    el.leaderboardWrap.innerHTML = `<div class="item"><div class="item-title">Natijalar yo‘q</div><div class="item-meta">Hali hech kim ishlamagan.</div></div>`;
+    if(el.rankLine) el.rankLine.innerHTML = "—";
+    return;
+  }
+
+  // Rank line
+  if(el.rankLine && SESSION?.login){
+    const idx = statsArr.findIndex(r=>String(r.login)===String(SESSION.login));
+    if(idx>=0){
+      const me = statsArr[idx];
+      // Local summary-ni yangilab boramiz (urinish/foiz/o‘rin saqlansin)
+      try{
+        const totalQ = Number(me.correctTotal||0) + Number(me.wrongTotal||0);
+        const acc = totalQ ? Math.round((Number(me.correctTotal||0)/totalQ)*100) : 0;
+        setLastSummary(CURRENT_TEST?.code, SESSION.login, {
+          code: CURRENT_TEST?.code,
+          login: SESSION.login,
+          attempts: Number(me.attempts||0),
+          correctTotal: Number(me.correctTotal||0),
+          wrongTotal: Number(me.wrongTotal||0),
+          acc,
+          rank: idx+1,
+          participants: statsArr.length,
+          updatedAt: Date.now()
+        });
+      }catch(_){}
+      el.rankLine.innerHTML = `Sizning o‘rningiz: <b>#${idx+1}</b> / ${statsArr.length} • Oxirgi: <b>${me.lastScore||0}/${me.lastTotal||0}</b>`;
+    }else{
+      el.rankLine.innerHTML = `Ishtirokchilar: <b>${statsArr.length}</b> ta`;
+    }
+  }else if(el.rankLine){
+    el.rankLine.innerHTML = `Ishtirokchilar: <b>${statsArr.length}</b> ta`;
+  }
+
+  let h = `<table><thead><tr>
+    <th>#</th><th>Ism</th><th>Urinish</th><th>✅ To‘g‘ri</th><th>❌ Xato</th><th>📈 Aniqlik</th>${isAdmin?'<th>Oxirgi</th>':""}
+  </tr></thead><tbody>`;
+
+  statsArr.slice(0, MAX_ROWS).forEach((r,i)=>{
+    const mine = SESSION?.login && String(r.login) === String(SESSION.login);
+    const total = (Number(r.correctTotal||0)+Number(r.wrongTotal||0));
+    const acc = total ? Math.round((Number(r.correctTotal||0)/total)*100) : 0;
+    const badge = i===0 ? "🥇" : i===1 ? "🥈" : i===2 ? "🥉" : "";
+    h += `<tr class="${mine?"my-row":""}" data-login="${esc(String(r.login||""))}">
+      <td><b>${badge} ${i+1}</b></td>
+      <td>${maskName(r.login)}</td>
+      <td><b>${Number(r.attempts||0)}</b></td>
+      <td><b>${Number(r.correctTotal||0)}</b></td>
+      <td><b>${Number(r.wrongTotal||0)}</b></td>
+      <td>${acc}%</td>
+      ${isAdmin?`<td>${r.lastDate ? new Date(r.lastDate).toLocaleString() : "-"}</td>`:""}
+    </tr>`;
+  });
+
+  h += `</tbody></table>`;
+  el.leaderboardWrap.innerHTML = h;
+
+  // Admin: click row -> open that user's detailed result
+  if(isAdmin){
+    el.leaderboardWrap.onclick = async (e)=>{
+      const tr = e.target?.closest("tr[data-login]");
+      if(!tr) return;
+      const login = tr.getAttribute("data-login");
+      if(!login) return;
+      DETAIL_LOGIN = login;
+      const rec = await getResult(CURRENT_TEST.code, login);
+      if(!rec){
+        showToast("Bu foydalanuvchining tafsiloti topilmadi.");
+        return;
+      }
+      el.detailWrap.innerHTML = renderMyDetail(rec, true, true);
+      LAST_COPY_TEXT = makeCopyText(CURRENT_TEST, rec);
+      showToast(`👁️ ${login} natijasi ochildi.`);
+      haptic("light");
+    };
+  }else{
+    el.leaderboardWrap.onclick = null;
+  }
+}
+
+function subscribeStats(code){
+  stopLiveStats();
+
+  const q = query(collection(db,"stats"), where("code","==",code), limit(500));
+  UNSUB_STATS = onSnapshot(q, (snap)=>{
+    // Agar natijalar oynasi yopiq bo'lsa - UI chizmaymiz
+    if(el.resultsCard.classList.contains("hidden")) return;
+
+    const arr=[]; snap.forEach(d=>arr.push(d.data()));
+    sortStats(arr);
+    CURRENT_STATS = arr;
+
+    if(LB_TIMER) clearTimeout(LB_TIMER);
+    LB_TIMER = setTimeout(()=> renderLeaderboard(arr), 250);
+  }, (err)=>{
+    console.warn(err);
+    showToast("⚠️ Reytingni yangilashda xato. Internetni tekshiring.");
+  });
+}
+
+async function viewResults(code, justMade=null){
+  const tests = await allTests();
+  const t = tests.find(x=>x.code===code);
+  if(!t) return showToast("Test topilmadi.");
+  CURRENT_TEST = t;
+
+  el.resTitle.textContent = `${t.name} — Natijalar`;
+  showOnly("results");
+
+  // Live leaderboard (real time)
+  subscribeStats(code);
+
+  // Detail: user sees own; admin sees own by default, can click row for others
+  let rec = null;
+  if(SESSION.login){
+    rec = justMade || await getResult(code, SESSION.login);
+  }
+
+  if(rec){
+    const hideAt = (SESSION?.role==="admin") ? 0 : safeGetHideAt(code, SESSION.login);
+    const canShowDetails = (SESSION?.role==="admin") || !hideAt || (Date.now() <= hideAt);
+    el.detailWrap.innerHTML = renderMyDetail(rec, false, canShowDetails);
+    LAST_COPY_TEXT = makeShareText(t, rec, CURRENT_STATS || []);
+
+    // hideAt bo‘lsa — vaqt tugaganda avtomatik yashiramiz
+    if(hideAt && hideAt > Date.now() && SESSION?.role!=="admin"){
+      clearTimeout(viewResults._hideT);
+      viewResults._hideT = setTimeout(async ()=>{
+        try{
+          if(CURRENT_TEST?.code !== code) return;
+          const latest = await getResult(code, SESSION.login);
+          if(!latest) return;
+          el.detailWrap.innerHTML = renderMyDetail(latest, false, false);
+        }catch(_){}
+      }, Math.max(60, hideAt - Date.now() + 50));
+    }
+  }else{
+    el.detailWrap.innerHTML = `<div class="item">
+      <div class="item-title">Tafsilotlar yo‘q</div>
+      <div class="item-meta">Siz hali bu testni ishlamagansiz yoki natija saqlanmagan.</div>
+    </div>`;
+    LAST_COPY_TEXT = "";
+  }
+
+  // Materiallar
+  const mats = [];
+  if(t.videoLink) mats.push({k:"video", text:"🎬 Video tahlil", url:t.videoLink});
+  if(t.pdfLink) mats.push({k:"pdf", text:"📄 PDF test", url:t.pdfLink});
+  if(t.analysisLink) mats.push({k:"analysis", text:"🧾 Test tahlili", url:t.analysisLink});
+
+  if(mats.length){
+    const box = document.createElement("div");
+    box.className = "item";
+    box.innerHTML = `
+      <div class="item-title">Materiallar</div>
+      <div class="item-meta">Linklar ustiga bosing</div>
+      <div class="materials">
+        ${mats.map(m=>`<span class="chip ${m.k}" data-k="${m.k}">${m.text}</span>`).join("")}
+      </div>
+    `;
+    box.addEventListener("click", (e)=>{
+      const chip = e.target?.closest(".chip");
+      if(!chip) return;
+      const k = chip.dataset.k;
+      const m = mats.find(x=>x.k===k);
+      if(!m) return;
+
+      chip.classList.add("flash");
+      setTimeout(()=>chip.classList.remove("flash"), 950);
+
+      if(k === "video"){
+        showToast(`🎬 Video ochildi. Bu video aynan shu test tahliliga tegishli. Topilmasa: test nomi yoki kodini (${CURRENT_TEST?.code||""}) Telegram qidiruviga yozib qidiring.`);
+      }else if(k === "pdf"){
+        showToast("📄 PDF ochildi. Bu fayl shu test uchun. Ochilmasa — internetingizni tekshiring va qayta urining.");
+      }else if(k === "analysis"){
+        showToast("🧾 Tahlil ochildi. Bu sahifa shu testga tegishli. Ko‘rib bo‘lgach, Orqaga qayting.");
+      }
+
+      openAnyLink(m.url);
+      haptic("light");
+    });
+    el.detailWrap.appendChild(box);
+  }
+}
+/* ===== Copy button (faqat nusxa olish) ===== */
+el.btnCopy.addEventListener("click", async ()=>{
+  if(!CURRENT_TEST) return showToast("Avval testni tanlang yoki yakunlang.");
+
+  // Admin: reyting nusxasi
+  if(SESSION?.role === "admin"){
+    const text = makeAllStatsText(CURRENT_TEST, CURRENT_STATS || []);
+    await copyToClipboard(text);
+    showToast("✅ Nusxa olindi. Endi Telegramga o‘ting va kerakli guruhingizga “Paste / Вставить” qiling.", 5000);
+haptic("light");
+    return;
+  }
+
+  if(!SESSION?.login) return showToast("Avval ism kiriting.");
+
+  const rec = await getResult(CURRENT_TEST.code, SESSION.login);
+  if(!rec) return showToast("Avval testni yakunlang.");
+
+  const text = makeShareText(CURRENT_TEST, rec, CURRENT_STATS || []);
+  await copyToClipboard(text);
+
+  // Tafsilotlar 1 soat davomida ko‘rinadi, keyin yashiriladi
+  const prev = safeGetHideAt(CURRENT_TEST.code, SESSION.login);
+  const next = Date.now() + 60*60*1000;
+  safeSetHideAt(CURRENT_TEST.code, SESSION.login, Math.max(prev||0, next));
+
+  // 1 soat tugaganda shu sahifadagi tafsilotni ham yashiramiz
+  clearTimeout(el.btnCopy._hideT);
+  el.btnCopy._hideT = setTimeout(async ()=>{
+    try{
+      if(CURRENT_TEST?.code !== rec.code) return;
+      const latest = await getResult(rec.code, rec.login);
+      if(!latest) return;
+      el.detailWrap.innerHTML = renderMyDetail(latest, false, false);
+    }catch(_){}
+  }, 60*60*1000 + 80);
+
+  showToast("✅ Nusxa olindi. Endi Telegramga o‘ting va kerakli guruhingizga “Paste / Вставить” qiling.", 5000);
+haptic("light");
+});
+/* ===== Admin report copy ===== */
+async function copyAdminReport(code){
+  const tests = await allTests();
+  const t = tests.find(x=>x.code===code);
+  if(!t) return showToast("Test topilmadi.");
+
+  const statsArr = await getStatsForCode(code, true);
+  const text = makeAllStatsText(t, statsArr);
+
+  const ok = await copyToClipboard(text);
+  showToast(ok ? "✅ Hisobot nusxasi olindi." : "✅ Nusxa olish oynasi ochildi.");
+}
+
+
+/* ===== Clipboard guide ===== */
+let LAST_GUIDE_TEXT = "";
+
+let GUIDE_AUTO_TIMER = null;
+function openGuideModal(text, openChat=false, autoCloseMs=0){
+  // (O‘chirildi) Eski "ko‘rsatma modal" endi ochilmaydi.
+  // Biz faqat pastdagi toast bilan yo‘riqnoma beramiz.
+  LAST_GUIDE_TEXT = text || "";
+  if(el.guideText) el.guideText.value = LAST_GUIDE_TEXT;
+  return;
+}
+
+
+function closeGuideModal(){
+  el.guideModal?.classList.add("hidden");
+}
+
+el.btnGuideBack?.addEventListener("click", closeGuideModal);
+el.btnGuideClose?.addEventListener("click", closeGuideModal);
+el.guideModal?.addEventListener("click", (e)=>{
+  const a = e.target?.closest("[data-act='closeGuide']");
+  if(a) closeGuideModal();
+});
+el.btnGuideCopy?.addEventListener("click", async ()=>{
+  if(!LAST_GUIDE_TEXT) return;
+  await copyToClipboard(LAST_GUIDE_TEXT);
+  showToast("✅ Natija qayta nusxalandi.");
+  haptic("light");
+});
+el.btnGuideOpen?.addEventListener("click", ()=>{
+  openTelegram(REPORT_LINK);
+  showToast("📨 Telegram ochildi. Endi bo‘sh joyni bosib turib “Paste / Вставить” ni tanlang va yuboring.");
+  haptic("light");
+});
+
+
+/* ===== Global error guard ===== */
+window.addEventListener("error", (e)=>{
+  try{
+    const msg = (e?.message || "Xatolik");
+    showToast("❌ Xatolik: " + msg);
+  }catch(_){}
+});
+window.addEventListener("unhandledrejection", (e)=>{
+  try{
+    const msg = (e?.reason?.message || e?.reason || "Xatolik");
+    showToast("❌ Xatolik: " + msg);
+  }catch(_){}
+});
+
+
+// ===== Download all test keys as PDF (formatted) =====
+window.addEventListener("DOMContentLoaded", ()=>{
+  const btn = document.getElementById("btnDownloadKeys");
+  if(!btn) return;
+  btn.addEventListener("click", async ()=>{
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF();
+    const tests = await allTests(true);
+
+    const marginX = 20;
+    let y = 20;
+
+    tests.forEach((t,idx)=>{
+      const keyStr = (t.key||[]).map((k,i)=> (i+1)+k).join(", ");
+
+      // Title: CODE - NAME (bold)
+      pdf.setFont("helvetica", "bold");
+      pdf.setFontSize(13);
+      const title = `${t.code} - ${t.name}`;
+      const titleLines = pdf.splitTextToSize(title, 170);
+      pdf.text(titleLines, marginX, y);
+      y += titleLines.length * 7;
+
+      // Answers line
+      pdf.setFont("helvetica", "normal");
+      pdf.setFontSize(12);
+      const ans = `Javoblar: ${keyStr}`;
+      const ansLines = pdf.splitTextToSize(ans, 170);
+      pdf.text(ansLines, marginX, y);
+      y += ansLines.length * 7;
+
+      // Divider space between tests
+      y += 6;
+
+      if(y > 270){
+        pdf.addPage();
+        y = 20;
+      }
+    });
+
+    
+    localStorage.setItem("last_pdf_ts", Date.now());
+    pdf.save("test_javoblari.pdf");
+
+  });
+});
+
+
+// ===== Navigator panel + Teacher tools =====
+function buildNavigator(){
+  const nav = document.getElementById("navPanel");
+  if(!nav || !PLAY) return;
+  nav.innerHTML = "";
+  for(let i=0;i<PLAY.count;i++){
+    const b=document.createElement("button");
+    b.className="nav-btn";
+    b.textContent=i+1;
+    b.onclick=()=>setFocus(i);
+    nav.appendChild(b);
+  }
+}
+
+document.addEventListener("click",(e)=>{
+  if(e.target && e.target.classList.contains("opt")){
+    const idx=parseInt(e.target.dataset.i,10);
+    const navBtns=document.querySelectorAll(".nav-btn");
+    navBtns[idx]?.classList.add("done");
+  }
+});
+
+// Show only wrong answers
+document.addEventListener("DOMContentLoaded",()=>{
+  const btnWrong=document.getElementById("btnToggleWrong");
+  if(btnWrong){
+    btnWrong.onclick=()=>{
+      document.querySelectorAll(".qrow").forEach((row,i)=>{
+        if(PLAY && PLAY.chosen[i]===PLAY.key[i]) row.classList.toggle("hiddenWrong");
+      });
+    };
+  }
+});
+
+// Extend startTest to build navigator
+const _oldStartTest = startTest;
+startTest = async function(code){
+  await _oldStartTest(code);
+  setTimeout(buildNavigator,200);
+};
+
+// ===== Highlight new tests in PDF =====
+let LAST_PDF_TS = Number(localStorage.getItem("last_pdf_ts")||0);
+function isNewTest(t){
+  return (t.updatedAt||0) > LAST_PDF_TS;
+}
+
+/* ===== Boot ===== */
+(function boot(){
+
+  // file:// orqali ochilsa Firebase/Telegram to‘liq ishlamaydi
+  if(location.protocol === "file:"){
+    el.fileBanner?.classList.remove("hidden");
+    showToast("⚠️ Saytni file:/// orqali ochmang. GitHub Pages (https://...) ga joylang yoki Live Server bilan oching.");
+  }
+
+  try{
+    const last = localStorage.getItem("tm_last_name");
+    if(last) el.userName.value = last;
+  }catch(_){}
+  // Report link yuklash (local + Firestore)
+  loadReportLink();
+  el.testsList.innerHTML = `<div class="item"><div class="item-title">Boshlash</div><div class="item-meta">Ism kiriting yoki admin bo‘lib kiring.</div></div>`;
+  showOnly("auth");
+})();
 </script>
+
+<script>
+document.addEventListener("click", function(e){
+  if(e.target && e.target.id === "btnShowKeyPanel"){
+    const panel = document.getElementById("keyPanel");
+    if(!panel || !window.PLAY) return;
+    const arr = (window.PLAY.key || []).map((k,i)=> (i+1)+k).join(", ");
+    panel.textContent = "Javob kaliti: " + arr;
+  }
+});
+</script>
+
 </body>
 </html>
