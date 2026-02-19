@@ -579,7 +579,8 @@ td b{font-weight: 950}
         <button class="btn" id="btnClearSearch" type="button">Tozalash</button>
       </div>
 
-      <button class="btn" id="btnDownloadKeys" type="button" style="margin:10px 0">📄 Javoblarni yuklab olish (PDF)</button>
+      <button class="btn" id="btnMyStats" type="button" style="margin:10px 0">📊 Mening natijalarim</button>
+<button class="btn" id="btnDownloadKeys" type="button" style="margin:10px 0">📄 Javoblarni yuklab olish (PDF)</button>
 <div id="testsList" class="list" style="margin-top:12px"></div>
     </section>
 
@@ -1660,7 +1661,10 @@ async function finishTest(){
     lastDate: Date.now(),
     updatedAt: Date.now()
   };
-  await saveStat(PLAY.code, SESSION.login, next);
+  // 🔒 PRIVATE MODE: Shahboz2768 reytingga yozilmaydi
+  if(!isPrivateUser()){
+    await saveStat(PLAY.code, SESSION.login, next);
+  }
 
   // Result details (doimiy — o‘chmaydi)
   const resultRec = {
@@ -1672,7 +1676,9 @@ async function finishTest(){
     details,
     date: Date.now()
   };
-  await upsertResult(resultRec);
+  if(!isPrivateUser()){
+    await upsertResult(resultRec);
+  }
 
   // Local summary: faqat qisqa ma'lumot (tafSilot localStorage-ga yozilmaydi)
   try{
@@ -2277,6 +2283,74 @@ document.addEventListener("click", function(e){
     panel.textContent = "Javob kaliti: " + arr;
   }
 });
+
+/* ===== MY STATS + AI ADVICE ===== */
+document.getElementById("btnMyStats")?.addEventListener("click", async ()=>{
+  if(!SESSION.login) return;
+
+  const tests = await allTests();
+  let myStats = [];
+
+  for(const t of tests){
+    const st = await getStat(t.code, SESSION.login);
+    if(st.attempts>0){
+      const total = (Number(st.correctTotal||0)+Number(st.wrongTotal||0));
+      const acc = total ? Math.round((Number(st.correctTotal||0)/total)*100) : 0;
+      myStats.push({
+        name:t.name,
+        code:t.code,
+        attempts:st.attempts,
+        correct:st.correctTotal||0,
+        wrong:st.wrongTotal||0,
+        acc
+      });
+    }
+  }
+
+  if(!myStats.length){
+    el.testsList.innerHTML = `
+      <div class="item">
+        <div class="item-title">Statistika yo‘q</div>
+        <div class="item-meta">Siz hali test ishlamagansiz.</div>
+      </div>`;
+    return;
+  }
+
+  // AI maslahat (eng ko‘p xato testlar)
+  const weak = [...myStats].sort((a,b)=>b.wrong-a.wrong).slice(0,3);
+  let advice = weak.length
+    ? "Takrorlash kerak: " + weak.map(w=>w.name).join(", ")
+    : "Natijalar yaxshi. Davom eting!";
+
+  let html = `
+    <div class="item">
+      <div class="item-title">📊 Mening umumiy statistikam</div>
+      <div class="item-meta">Ishlangan testlar: <b>${myStats.length}</b></div>
+    </div>
+
+    <div class="item">
+      <div class="item-title">🤖 AI maslahat</div>
+      <div class="item-meta">${advice}</div>
+    </div>
+  `;
+
+  myStats.forEach(s=>{
+    html += `
+      <div class="item">
+        <div class="item-title">${s.name}</div>
+        <div class="item-meta">
+          Kod: <b>${s.code}</b> |
+          Urinish: <b>${s.attempts}</b> |
+          To‘g‘ri: <b>${s.correct}</b> |
+          Xato: <b>${s.wrong}</b> |
+          Aniqlik: <b>${s.acc}%</b>
+        </div>
+      </div>`;
+  });
+
+  el.testsList.innerHTML = html;
+});
+
 </script>
 
 </body>
