@@ -1031,19 +1031,7 @@ async function allTests(force=false){
   if(!force && CACHE.tests && (Date.now()-CACHE.ts<15000)) return CACHE.tests;
   const qs = await getDocs(collection(db,"tests"));
   let arr=[]; qs.forEach(d=>arr.push(d.data()));
-  // 🔎 Reyting filtri:
-  // - shahboz2768 ko‘rinmaydi
-  // - <20% yoki ≤5 savol urinishlar kiritilmaydi
-  arr = arr.filter(r=>{
-    const login = String(r.login||"").toLowerCase();
-    const total = Number(r.lastTotal||0);
-    const score = Number(r.lastScore||0);
-    const acc = total ? (score/total) : 0;
-    if(login === "shahboz2768") return false;
-    if(total <= 5) return false;
-    if(acc < 0.20) return false;
-    return true;
-  });
+  
 
   arr.sort((a,b)=> (a.name||"").localeCompare(b.name||""));
   CACHE.tests=arr; CACHE.ts=Date.now();
@@ -1088,19 +1076,7 @@ async function getStatsForCode(code, force=false){
   if(!force && CACHE.statsByCode.has(code)) return CACHE.statsByCode.get(code);
   const qs = await getDocs(query(collection(db,"stats"), where("code","==",code), limit(500)));
   let arr=[]; qs.forEach(d=>arr.push(d.data()));
-  // 🔎 Reyting filtri:
-  // - shahboz2768 ko‘rinmaydi
-  // - <20% yoki ≤5 savol urinishlar kiritilmaydi
-  arr = arr.filter(r=>{
-    const login = String(r.login||"").toLowerCase();
-    const total = Number(r.lastTotal||0);
-    const score = Number(r.lastScore||0);
-    const acc = total ? (score/total) : 0;
-    if(login === "shahboz2768") return false;
-    if(total <= 5) return false;
-    if(acc < 0.20) return false;
-    return true;
-  });
+  
 
   // Ranking: correctTotal desc, then attempts asc (kam urinish — yuqoriroq), then name
   arr.sort((a,b)=>
@@ -1737,7 +1713,6 @@ async function finishTest(){
     });
   });
 
-  // Oldingi statistika
   const prevStat = await getStat(PLAY.code, SESSION.login);
 
   const resultRec = {
@@ -1750,10 +1725,7 @@ async function finishTest(){
     date: Date.now()
   };
 
-  // Umumiy natija
   await upsertResult(resultRec);
-
-  // Private tarix (faqat shahboz2768)
   await savePrivateAttempt(resultRec);
 
   showResultModal(resultRec);
@@ -2133,7 +2105,7 @@ haptic("light");
   await copyToClipboard(text);
 
   // Tafsilotlar 1 soat davomida ko‘rinadi, keyin yashiriladi
-  const prevStat = safeGetHideAt(CURRENT_TEST.code, SESSION.login);
+  const prev = safeGetHideAt(CURRENT_TEST.code, SESSION.login);
   const next = Date.now() + 60*60*1000;
   safeSetHideAt(CURRENT_TEST.code, SESSION.login, Math.max(prev||0, next));
 
