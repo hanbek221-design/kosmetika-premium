@@ -581,11 +581,6 @@ td b{font-weight: 950}
 
       <button class="btn" id="btnDownloadKeys" type="button" style="margin:10px 0">📄 Javoblarni yuklab olish (PDF)</button>
 <div id="testsList" class="list" style="margin-top:12px"></div>
-<div style="margin-top:16px">
-  <button class="btn" id="btnMyTests">📚 Mening testlarim</button>
-  <div id="myTestsWrap" class="list" style="margin-top:10px"></div>
-</div>
-
     </section>
 
     <!-- PLAY -->
@@ -1030,9 +1025,7 @@ const CACHE = { tests:null, ts:0, statsByCode:new Map() };
 async function allTests(force=false){
   if(!force && CACHE.tests && (Date.now()-CACHE.ts<15000)) return CACHE.tests;
   const qs = await getDocs(collection(db,"tests"));
-  let arr=[]; qs.forEach(d=>arr.push(d.data()));
-  
-
+  const arr=[]; qs.forEach(d=>arr.push(d.data()));
   arr.sort((a,b)=> (a.name||"").localeCompare(b.name||""));
   CACHE.tests=arr; CACHE.ts=Date.now();
   return arr;
@@ -1075,9 +1068,7 @@ async function saveStat(code, login, patch){
 async function getStatsForCode(code, force=false){
   if(!force && CACHE.statsByCode.has(code)) return CACHE.statsByCode.get(code);
   const qs = await getDocs(query(collection(db,"stats"), where("code","==",code), limit(500)));
-  let arr=[]; qs.forEach(d=>arr.push(d.data()));
-  
-
+  const arr=[]; qs.forEach(d=>arr.push(d.data()));
   // Ranking: correctTotal desc, then attempts asc (kam urinish — yuqoriroq), then name
   arr.sort((a,b)=>
     (Number(b.lastScore||0)-Number(a.lastScore||0)) ||
@@ -1088,24 +1079,10 @@ async function getStatsForCode(code, force=false){
   return arr;
 }
 
-/* ===== Results (doimiy) ===== */
-
-/* ===== PRIVATE HISTORY (faqat shahboz2768) ===== */
-async function savePrivateAttempt(rec){
-  if(String(rec.login||"").toLowerCase() !== "shahboz2768") return;
-
-  const id = `${rec.code}__${rec.login.toLowerCase()}__${Date.now()}`;
-  await setDoc(doc(db, "private_attempts", id), {
-    login: rec.login,
-    code: rec.code,
-    attempt: rec.attempt,
-    score: rec.score,
-    total: rec.total,
-    details: rec.details,
-    date: rec.date,
-    createdAt: Date.now()
-  });
-}
+/* ===== Results (doimiy) =====
+  - Har foydalanuvchi uchun shu test bo‘yicha oxirgi tafsilotli natija saqlanadi (o‘chmaydi).
+  - Admin ham doim ko‘ra oladi.
+*/
 async function upsertResult(rec){
   const id = statId(rec.code, rec.login);
   await setDoc(doc(db,"results", id), rec);
@@ -1431,55 +1408,6 @@ el.btnAdminLogin.addEventListener("click", async ()=>{
 });
 
 
-
-/* ===== Personal history (shahboz2768) ===== */
-async function loadMyTests(){
-  if(String(SESSION.login||"").toLowerCase() !== "shahboz2768"){
-    return showToast("Bu bo‘lim faqat siz uchun.");
-  }
-  const wrap = document.getElementById("myTestsWrap");
-  wrap.innerHTML = "Yuklanmoqda...";
-  const qs = await getDocs(query(collection(db,"private_attempts"), where("login","==","shahboz2768")));
-  let arr=[]; qs.forEach(d=>arr.push(d.data()));
-  if(!arr.length){ wrap.innerHTML = "<div class='item'>Tarix yo‘q</div>"; return; }
-
-  // guruhlash: test bo‘yicha
-  const byCode = {};
-  arr.forEach(r=>{
-    if(!byCode[r.code]) byCode[r.code]=[];
-    byCode[r.code].push(r);
-  });
-
-  wrap.innerHTML = "";
-  Object.keys(byCode).forEach(code=>{
-    const list = byCode[code].sort((a,b)=>b.date-a.date);
-    const last = list[0];
-    const acc = last.total ? Math.round((last.score/last.total)*100) : 0;
-
-    // AI tavsiya (kod bosh harfi)
-    const topic = code.charAt(0).toUpperCase();
-    let advice = "Umumiy takrorlash tavsiya etiladi.";
-    if(topic==="A") advice="Adabiyot mavzulari bo‘yicha tahliliy o‘qish kuchaytiring.";
-    if(topic==="O") advice="Ona tili: imlo va grammatik testlarni ko‘proq ishlang.";
-    if(topic==="T") advice="Test strategiyasi va vaqt taqsimotini mashq qiling.";
-
-    const div = document.createElement("div");
-    div.className="item";
-    div.innerHTML = `
-      <div class="item-title">${code} — Oxirgi: ${last.score}/${last.total} (${acc}%)</div>
-      <div class="item-meta">AI tavsiya: ${advice}</div>
-      <details style="margin-top:8px">
-        <summary>Barcha urinishlar</summary>
-        <div style="margin-top:6px;font-size:13px">
-          ${list.map(x=>`#${x.attempt} — ${x.score}/${x.total}`).join("<br>")}
-        </div>
-      </details>
-    `;
-    wrap.appendChild(div);
-  });
-}
-
-document.getElementById("btnMyTests")?.addEventListener("click", loadMyTests);
 /* ===== User: list / search ===== */
 el.btnShowAll.addEventListener("click", ()=>{
   renderUser(true).catch(err=>{
@@ -1699,36 +1627,73 @@ document.addEventListener("keydown", (e)=>{
 el.finishBtn.addEventListener("click", finishTest);
 
 async function finishTest(){
+  if(PLAY.chosen.some(x=>x==null)){
+    if(!confirm("Baʼzi savollar belgilanmagan. Baribir yakunlaysizmi?")) return;
+  }
+
+  // Score + details
   let score = 0;
   const details = [];
-
-  PLAY.questions.forEach((q,i)=>{
-    const ok = (PLAY.answers[i] === q.correct);
+  for(let i=0;i<PLAY.count;i++){
+    const correct = PLAY.key[i];
+    const chosen = PLAY.chosen[i] || "-";
+    const ok = chosen === correct;
     if(ok) score++;
-    details.push({
-      q: i+1,
-      ok,
-      your: PLAY.answers[i] ?? null,
-      correct: q.correct
-    });
-  });
+    details.push({ q:i+1, chosen, correct, ok });
+  }
 
-  const prevStat = await getStat(PLAY.code, SESSION.login);
+  const wrong = PLAY.count - score;
 
-  const resultRec = {
+  // Old stat — birinchi urinishni aniqlash uchun
+  const prev = await getStat(PLAY.code, SESSION.login);
+  const prevAttempts = Number(prev.attempts||0);
+
+  // Update stats (doimiy)
+  const next = {
     code: PLAY.code,
     login: SESSION.login,
-    attempt: Number(prevStat?.attempts || 0) + 1,
+    attempts: prevAttempts + 1,
+    correctTotal: Number(prev.correctTotal||0) + score,
+    wrongTotal: Number(prev.wrongTotal||0) + wrong,
+    lastScore: score,
+    lastTotal: PLAY.count,
+    lastDate: Date.now(),
+    updatedAt: Date.now()
+  };
+  await saveStat(PLAY.code, SESSION.login, next);
+
+  // Result details (doimiy — o‘chmaydi)
+  const resultRec = {
+    login: SESSION.login,
+    code: PLAY.code,
+    attempt: prevAttempts + 1,
     score,
     total: PLAY.count,
     details,
     date: Date.now()
   };
-
   await upsertResult(resultRec);
-  await savePrivateAttempt(resultRec);
 
-  showResultModal(resultRec);
+  // Local summary: faqat qisqa ma'lumot (tafSilot localStorage-ga yozilmaydi)
+  try{
+    clearHideDetailsAt(PLAY.code, SESSION.login); // yangi natija chiqqanda tafsilotlar ochiq bo‘lsin
+    setLastSummary(PLAY.code, SESSION.login, {
+      code: PLAY.code,
+      login: SESSION.login,
+      attempts: prevAttempts + 1,
+      correctTotal: score,
+      wrongTotal: wrong,
+      acc: PLAY.count ? Math.round((score/PLAY.count)*100) : 0,
+      rank: null,
+      participants: null,
+      updatedAt: Date.now()
+    });
+  }catch(_){}
+
+  // Natijani ko'rsatish
+  await viewResults(PLAY.code, resultRec);
+  haptic("medium");
+  // Avtomatik nusxa + Telegram ochish o‘chirildi: faqat "Nusxa olish" tugmasi orqali.
 }
 /* ===== Results ===== */
 function pct(rec){ return Math.round((rec.score/rec.total)*100); }
