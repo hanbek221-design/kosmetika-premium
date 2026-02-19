@@ -577,7 +577,6 @@ td b{font-weight: 950}
         <input id="nameSearch" placeholder="Nom bo‘yicha qidirish..." />
         <button class="btn" id="btnShowAll" type="button">Barcha testlar</button>
         <button class="btn" id="btnClearSearch" type="button">Tozalash</button>
-        <button class="btn" id="btnScanQR" type="button">📷 QR scan</button>
       </div>
 
       <button class="btn" id="btnMyStats" type="button" style="margin:10px 0">📊 Mening natijalarim</button>
@@ -660,24 +659,7 @@ td b{font-weight: 950}
     </div>
   </div>
 
-
-  <!-- QR Scan Modal -->
-  <div class="modal hidden" id="qrModal">
-    <div class="modal-backdrop" id="qrClose"></div>
-    <div class="modal-card">
-      <div class="modal-head">
-        <div>
-          <div class="modal-title">QR kodni skan qiling</div>
-          <div class="modal-sub">Kamera orqali test kodi avtomatik aniqlanadi</div>
-        </div>
-        <button class="btn ghost" id="qrCloseBtn">Yopish</button>
-      </div>
-      <div id="qr-reader" style="width:100%;margin-top:10px"></div>
-    </div>
-  </div>
-
 </main>
-  <script src="https://unpkg.com/html5-qrcode"></script>
   <script type="module">
 // TestMaster — Telegram WebApp Ready (Video/PDF/Analysis links)
 // Firebase: 10.12.3 (module CDN)
@@ -2371,77 +2353,5 @@ document.getElementById("btnMyStats")?.addEventListener("click", async ()=>{
 
 </script>
 
-<script>
-/* ===== SAVE USERNAME ON LOGIN ===== */
-document.addEventListener("click", function(e){
-  const btn = e.target.closest("button");
-  if(!btn) return;
-
-  // Agar tugma matni 'Kirish' bo'lsa (Foydalanuvchi login)
-  if(btn.textContent.trim().toLowerCase() === "kirish"){
-    const nameInput = document.querySelector('input[placeholder="Ismingiz"]');
-    if(!nameInput) return;
-
-    const username = nameInput.value.trim();
-    if(!username) return;
-
-    try{
-      localStorage.setItem("username", username);
-    }catch(err){ console.error(err); }
-  }
-});
-
-/* ===== AUTO LOGIN ON PAGE LOAD ===== */
-window.addEventListener("load", ()=>{
-  try{
-    const savedUser = localStorage.getItem("username");
-    if(savedUser){
-      const nameInput = document.querySelector('input[placeholder="Ismingiz"]');
-      if(nameInput) nameInput.value = savedUser;
-
-      const badge = document.querySelector(".badge");
-      if(badge) badge.textContent = savedUser;
-
-      // Login panelni yashirish va testlar panelini ko'rsatish (agar mavjud bo'lsa)
-      document.getElementById("loginPanel")?.classList.add("hidden");
-      document.getElementById("userPanel")?.classList.remove("hidden");
-
-      // fallback: agar tugma orqali ochilsa
-      document.getElementById("btnShowAll")?.click();
-    }
-  }catch(e){
-    console.error("Auto login error:", e);
-  }
-});
-</script>
-<script>
-/* ===== AUTO PRIVATE MODE (NO LOGIN REQUIRED) ===== */
-window.addEventListener("load", ()=>{
-  const fixedUser = "Shahboz2768";
-
-  // Username doim saqlansin
-  try{
-    localStorage.setItem("username", fixedUser);
-  }catch(e){ console.error(e); }
-
-  // Badge / username ko'rsatish
-  const badge = document.querySelector(".badge");
-  if(badge) badge.textContent = fixedUser;
-
-  // Login panelni yashirish (turli variantlar uchun)
-  document.querySelectorAll("#loginPanel, .login-panel, [data-panel='login'], .auth, .auth-panel")
-    .forEach(el => el.classList.add("hidden"));
-
-  // User / test panelni ko'rsatish
-  document.querySelectorAll("#userPanel, .user-panel, [data-panel='user'], .tests-panel")
-    .forEach(el => el.classList.remove("hidden"));
-
-  // Agar testlar tugmasi orqali yuklansa
-  const showAllBtn = document.getElementById("btnShowAll");
-  if(showAllBtn) showAllBtn.click();
-
-  console.log("Auto private login: ", fixedUser);
-});
-</script>
 </body>
 </html>
