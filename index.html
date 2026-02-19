@@ -1723,76 +1723,40 @@ document.addEventListener("keydown", (e)=>{
 el.finishBtn.addEventListener("click", finishTest);
 
 async function finishTest(){
-  if(PLAY.chosen.some(x=>x==null)){
-    if(!confirm("Baʼzi savollar belgilanmagan. Baribir yakunlaysizmi?")) return;
-  }
-
-  // Score + details
   let score = 0;
   const details = [];
-  for(let i=0;i<PLAY.count;i++){
-    const correct = PLAY.key[i];
-    const chosen = PLAY.chosen[i] || "-";
-    const ok = chosen === correct;
+
+  PLAY.questions.forEach((q,i)=>{
+    const ok = (PLAY.answers[i] === q.correct);
     if(ok) score++;
-    details.push({ q:i+1, chosen, correct, ok });
-  }
+    details.push({
+      q: i+1,
+      ok,
+      your: PLAY.answers[i] ?? null,
+      correct: q.correct
+    });
+  });
 
-  const wrong = PLAY.count - score;
+  // Oldingi statistika
+  const prevStat = await getStat(PLAY.code, SESSION.login);
 
-  // Old stat — birinchi urinishni aniqlash uchun
-  const prev = await getStat(PLAY.code, SESSION.login);
-  const prevAttempts = Number(prev.attempts||0);
-
-  // Update stats (doimiy)
-  const next = {
-    code: PLAY.code,
-    login: SESSION.login,
-    attempts: prevAttempts + 1,
-    correctTotal: Number(prev.correctTotal||0) + score,
-    wrongTotal: Number(prev.wrongTotal||0) + wrong,
-    lastScore: score,
-    lastTotal: PLAY.count,
-    lastDate: Date.now(),
-    updatedAt: Date.now()
-  };
-  await saveStat(PLAY.code, SESSION.login, next);
-
-  // Result details (doimiy — o‘chmaydi)
   const resultRec = {
-    login: SESSION.login,
     code: PLAY.code,
-    attempt: prevAttempts + 1,
+    login: SESSION.login,
+    attempt: Number(prevStat?.attempts || 0) + 1,
     score,
     total: PLAY.count,
     details,
     date: Date.now()
   };
+
+  // Umumiy natija
   await upsertResult(resultRec);
 
-  // 🔐 Private: har bir urinishni Firebase’da alohida saqlash
+  // Private tarix (faqat shahboz2768)
   await savePrivateAttempt(resultRec);
 
-  // Local summary: faqat qisqa ma'lumot (tafSilot localStorage-ga yozilmaydi)
-  try{
-    clearHideDetailsAt(PLAY.code, SESSION.login); // yangi natija chiqqanda tafsilotlar ochiq bo‘lsin
-    setLastSummary(PLAY.code, SESSION.login, {
-      code: PLAY.code,
-      login: SESSION.login,
-      attempts: prevAttempts + 1,
-      correctTotal: score,
-      wrongTotal: wrong,
-      acc: PLAY.count ? Math.round((score/PLAY.count)*100) : 0,
-      rank: null,
-      participants: null,
-      updatedAt: Date.now()
-    });
-  }catch(_){}
-
-  // Natijani ko'rsatish
-  await viewResults(PLAY.code, resultRec);
-  haptic("medium");
-  // Avtomatik nusxa + Telegram ochish o‘chirildi: faqat "Nusxa olish" tugmasi orqali.
+  showResultModal(resultRec);
 }
 /* ===== Results ===== */
 function pct(rec){ return Math.round((rec.score/rec.total)*100); }
@@ -2169,7 +2133,7 @@ haptic("light");
   await copyToClipboard(text);
 
   // Tafsilotlar 1 soat davomida ko‘rinadi, keyin yashiriladi
-  const prev = safeGetHideAt(CURRENT_TEST.code, SESSION.login);
+  const prevStat = safeGetHideAt(CURRENT_TEST.code, SESSION.login);
   const next = Date.now() + 60*60*1000;
   safeSetHideAt(CURRENT_TEST.code, SESSION.login, Math.max(prev||0, next));
 
