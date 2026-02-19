@@ -2414,5 +2414,34 @@ window.addEventListener("load", ()=>{
   }
 });
 </script>
+<script>
+/* ===== AUTO PRIVATE MODE (NO LOGIN REQUIRED) ===== */
+window.addEventListener("load", ()=>{
+  const fixedUser = "Shahboz2768";
+
+  // Username doim saqlansin
+  try{
+    localStorage.setItem("username", fixedUser);
+  }catch(e){ console.error(e); }
+
+  // Badge / username ko'rsatish
+  const badge = document.querySelector(".badge");
+  if(badge) badge.textContent = fixedUser;
+
+  // Login panelni yashirish (turli variantlar uchun)
+  document.querySelectorAll("#loginPanel, .login-panel, [data-panel='login'], .auth, .auth-panel")
+    .forEach(el => el.classList.add("hidden"));
+
+  // User / test panelni ko'rsatish
+  document.querySelectorAll("#userPanel, .user-panel, [data-panel='user'], .tests-panel")
+    .forEach(el => el.classList.remove("hidden"));
+
+  // Agar testlar tugmasi orqali yuklansa
+  const showAllBtn = document.getElementById("btnShowAll");
+  if(showAllBtn) showAllBtn.click();
+
+  console.log("Auto private login: ", fixedUser);
+});
+</script>
 </body>
 </html>
