@@ -577,7 +577,6 @@ td b{font-weight: 950}
         <input id="nameSearch" placeholder="Nom bo‘yicha qidirish..." />
         <button class="btn" id="btnShowAll" type="button">Barcha testlar</button>
         <button class="btn" id="btnClearSearch" type="button">Tozalash</button>
-        <button class="btn" id="btnScanQR" type="button">📷 QR scan</button>
       </div>
 
       <button class="btn" id="btnMyStats" type="button" style="margin:10px 0">📊 Mening natijalarim</button>
@@ -660,24 +659,7 @@ td b{font-weight: 950}
     </div>
   </div>
 
-
-  <!-- QR Scan Modal -->
-  <div class="modal hidden" id="qrModal">
-    <div class="modal-backdrop" id="qrClose"></div>
-    <div class="modal-card">
-      <div class="modal-head">
-        <div>
-          <div class="modal-title">QR kodni skan qiling</div>
-          <div class="modal-sub">Kamera orqali test kodi avtomatik aniqlanadi</div>
-        </div>
-        <button class="btn ghost" id="qrCloseBtn">Yopish</button>
-      </div>
-      <div id="qr-reader" style="width:100%;margin-top:10px"></div>
-    </div>
-  </div>
-
 </main>
-  <script src="https://unpkg.com/html5-qrcode"></script>
   <script type="module">
 // TestMaster — Telegram WebApp Ready (Video/PDF/Analysis links)
 // Firebase: 10.12.3 (module CDN)
