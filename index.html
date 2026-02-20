@@ -2636,10 +2636,83 @@ width:44px;height:44px;font-size:20px;cursor:pointer;">
 </button>
 
 
+<!-- ======================================
+FINAL STRICT TIMER SYSTEM (INTEGRATED)
+- Global stop => question timer ham stop
+- Savol vaqtlar doimiy localStorage’da
+- Natijalarda doim ko‘rinadi
+- Yangi test boshlansa yangilanadi
+====================================== -->
 <script>
-// ===== FULL HARD TIMER STOP PATCH =====
 (function(){
+
+  const LS_Q = "tm_last_question_times";
+  const LS_T = "tm_last_total_time";
+  let GLOBAL_STOP = false;
+
+  function hideTimers(){
+    document.getElementById("globalTimer")?.style.display="none";
+    document.getElementById("questionTimer")?.style.display="none";
+  }
+
+  function saveAllTimes(){
+    try{
+      if(window.QUESTION_TIMES){
+        localStorage.setItem(LS_Q, JSON.stringify(window.QUESTION_TIMES));
+      }
+      if(window.TOTAL_TIME_SEC){
+        localStorage.setItem(LS_T, String(window.TOTAL_TIME_SEC));
+      }
+    }catch(e){}
+  }
+
+  function loadAllTimes(){
+    try{
+      const q = localStorage.getItem(LS_Q);
+      const t = localStorage.getItem(LS_T);
+      if(q && window.QUESTION_TIMES){
+        const arr = JSON.parse(q);
+        if(Array.isArray(arr)) window.QUESTION_TIMES = arr;
+      }
+      if(t){
+        window.TOTAL_TIME_SEC = Number(t);
+      }
+    }catch(e){}
+  }
+
+  // START TIMER override
+  const _origStartTimer = window.startTimer;
+  if(typeof _origStartTimer === "function"){
+    window.startTimer = function(count){
+      GLOBAL_STOP = false;
+      _origStartTimer(count);
+      loadAllTimes();
+      hideTimers();
+    };
+  }
+
+  // QUESTION TIMER override
+  const _origStartQ = window.startQuestionTimer;
+  if(typeof _origStartQ === "function"){
+    window.startQuestionTimer = function(qIndex){
+      if(GLOBAL_STOP) return;
+      _origStartQ(qIndex);
+      hideTimers();
+    };
+  }
+
+  // SAVE QUESTION TIME override
+  const _origSave = window.saveQuestionTime;
+  if(typeof _origSave === "function"){
+    window.saveQuestionTime = function(i){
+      _origSave(i);
+      saveAllTimes();
+    };
+  }
+
+  // HARD STOP (qat’iy)
   window.hardStopTimers = function(){
+    GLOBAL_STOP = true;
     try{
       if(window.TIMER_INTERVAL){
         clearInterval(window.TIMER_INTERVAL);
@@ -2649,36 +2722,28 @@ width:44px;height:44px;font-size:20px;cursor:pointer;">
         clearInterval(window.QUESTION_TIMER_INTERVAL);
         window.QUESTION_TIMER_INTERVAL = null;
       }
-      var gt = document.getElementById("globalTimer");
-      if(gt) gt.style.display = "none";
-      var qt = document.getElementById("questionTimer");
-      if(qt) qt.style.display = "none";
-    }catch(e){ console.warn("hardStopTimers error", e); }
+    }catch(e){}
+    hideTimers();
+    saveAllTimes();
   };
 
-  // Override finishTest to fully stop both timers
-  const origFinish = window.finishTest;
-  if(typeof origFinish === "function"){
+  // finishTest override
+  const _origFinish = window.finishTest;
+  if(typeof _origFinish === "function"){
     window.finishTest = async function(){
-      if(!confirm("Testni yakunlaysizmi?")){
-        return; // davom etadi
-      }
+      if(!confirm("Testni yakunlaysizmi?")) return;
       window.hardStopTimers();
-      return await origFinish.apply(this, arguments);
+      return await _origFinish.apply(this, arguments);
     };
   }
 
-  // Back buttons -> also stop timers
-  document.addEventListener("DOMContentLoaded", function(){
-    var b1 = document.getElementById("btnBack1");
-    var b2 = document.getElementById("btnBack2");
-    if(b1){
-      b1.addEventListener("click", function(){ window.hardStopTimers(); });
-    }
-    if(b2){
-      b2.addEventListener("click", function(){ window.hardStopTimers(); });
+  // Back bosilganda ham stop
+  document.addEventListener("click", (e)=>{
+    if(e.target && (e.target.id==="btnBack1" || e.target.id==="btnBack2")){
+      window.hardStopTimers();
     }
   });
+
 })();
 </script>
 
