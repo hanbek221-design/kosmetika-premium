@@ -579,8 +579,7 @@ td b{font-weight: 950}
         <button class="btn" id="btnClearSearch" type="button">Tozalash</button>
       </div>
 
-      <button class="btn" id="btnMyStats" type="button" style="margin:10px 0">📊 Mening natijalarim</button>
-<button class="btn" id="btnDownloadKeys" type="button" style="margin:10px 0">📄 Javoblarni yuklab olish (PDF)</button>
+      <button class="btn" id="btnDownloadKeys" type="button" style="margin:10px 0">📄 Javoblarni yuklab olish (PDF)</button>
 <div id="testsList" class="list" style="margin-top:12px"></div>
     </section>
 
@@ -1496,6 +1495,65 @@ async function renderUser(force=false){
   }
 }
 
+
+// ===== TIMER + ANALYTICS GLOBALS =====
+let TEST_START_TIME = 0;
+let QUESTION_START_TIME = 0;
+let TIMER_INTERVAL = null;
+let QUESTION_TIMES = [];
+let TOTAL_TIME_SEC = 0;
+
+let CURRENT_Q_START_TIME = 0;
+let QUESTION_TIMER_INTERVAL = null;
+
+function startQuestionTimer(qIndex){
+  CURRENT_Q_START_TIME = Date.now();
+  const qTimer = document.getElementById("questionTimer");
+  if(qTimer){
+    qTimer.style.display = "block";
+  }
+  clearInterval(QUESTION_TIMER_INTERVAL);
+  QUESTION_TIMER_INTERVAL = setInterval(()=>{
+    const diff = Math.floor((Date.now()-CURRENT_Q_START_TIME)/1000);
+    const m = String(Math.floor(diff/60)).padStart(2,"0");
+    const s = String(diff%60).padStart(2,"0");
+    if(qTimer){
+      qTimer.textContent = "Savol " + (qIndex+1) + ": " + m + ":" + s;
+    }
+  },1000);
+}
+
+
+function startTimer(count){
+  TEST_START_TIME = Date.now();
+  QUESTION_START_TIME = Date.now();
+  QUESTION_TIMES = new Array(count||0).fill(0);
+
+  const timerBox = document.getElementById("globalTimer");
+  if(timerBox) timerBox.style.display = "block";
+
+  clearInterval(TIMER_INTERVAL);
+  TIMER_INTERVAL = setInterval(()=>{
+    const diff = Math.floor((Date.now()-TEST_START_TIME)/1000);
+    const m = String(Math.floor(diff/60)).padStart(2,"0");
+    const s = String(diff%60).padStart(2,"0");
+    if(timerBox) timerBox.textContent = "⏱ "+m+":"+s;
+  },1000);
+}
+
+function saveQuestionTime(i){
+  if(typeof i==="number"){
+    const spent = (Date.now()-QUESTION_START_TIME)/1000;
+    QUESTION_TIMES[i] = spent.toFixed(2);
+    QUESTION_START_TIME = Date.now();
+  }
+}
+
+function stopTimer(){
+  clearInterval(TIMER_INTERVAL);
+  TOTAL_TIME_SEC = (Date.now()-TEST_START_TIME)/1000;
+}
+
 /* ===== Play flow ===== */
 el.btnBack1.addEventListener("click", ()=>{
   stopLiveStats();
@@ -1521,6 +1579,8 @@ async function startTest(code){
     count: Number(t.count||0),
     chosen: new Array(Number(t.count||0)).fill(null)
   };
+  startTimer(PLAY.count);
+  startQuestionTimer(0);
   FOCUS = 0;
   LAST_FOCUS_EL = null;
   el.playTitle.textContent = `${t.name} — ${PLAY.count} savol`;
@@ -1575,6 +1635,8 @@ function setFocus(i){
 }
 
 function choose(i, v){
+  startQuestionTimer(i);
+  saveQuestionTime(i);
   PLAY.chosen[i] = v;
   const row = $("q_"+i);
   if(!row) return;
@@ -1628,6 +1690,13 @@ document.addEventListener("keydown", (e)=>{
 el.finishBtn.addEventListener("click", finishTest);
 
 async function finishTest(){
+  // Confirm before stopping timer
+  if(!confirm("Testni yakunlaysizmi?")){
+    return; // continue counting if user cancels
+  }
+  stopTimer();
+  const _qt=document.getElementById('questionTimer'); if(_qt) _qt.style.display='none';
+  const _gt=document.getElementById('globalTimer'); if(_gt) _gt.style.display='none';
   if(PLAY.chosen.some(x=>x==null)){
     if(!confirm("Baʼzi savollar belgilanmagan. Baribir yakunlaysizmi?")) return;
   }
@@ -1661,13 +1730,19 @@ async function finishTest(){
     lastDate: Date.now(),
     updatedAt: Date.now()
   };
-  // 🔒 PRIVATE MODE: Shahboz2768 reytingga yozilmaydi
-  if(!isPrivateUser()){
-    await saveStat(PLAY.code, SESSION.login, next);
-  }
+  await saveStat(PLAY.code, SESSION.login, next);
 
   // Result details (doimiy — o‘chmaydi)
-  const resultRec = {
+  // Ensure all question times filled
+for(let qi=0; qi<PLAY.count; qi++){
+  if(!QUESTION_TIMES[qi]){
+    QUESTION_TIMES[qi] = "0.00"; // unanswered = 0 seconds
+  }
+}
+
+const resultRec = {
+      total_time_sec: Number(TOTAL_TIME_SEC.toFixed(1)),
+      question_times: QUESTION_TIMES,
     login: SESSION.login,
     code: PLAY.code,
     attempt: prevAttempts + 1,
@@ -1676,9 +1751,7 @@ async function finishTest(){
     details,
     date: Date.now()
   };
-  if(!isPrivateUser()){
-    await upsertResult(resultRec);
-  }
+  await upsertResult(resultRec);
 
   // Local summary: faqat qisqa ma'lumot (tafSilot localStorage-ga yozilmaydi)
   try{
@@ -1698,6 +1771,65 @@ async function finishTest(){
 
   // Natijani ko'rsatish
   await viewResults(PLAY.code, resultRec);
+
+// === Total Time Summary UI ===
+const wrapSummary = document.getElementById("detailWrap");
+if(wrapSummary){
+  wrapSummary.insertAdjacentHTML("afterbegin",
+    `<div class="item">
+       <div class="item-title">⏱ Umumiy ishlash vaqti</div>
+       <div class="item-meta"><b>${TOTAL_TIME_SEC.toFixed(2)} soniya</b></div>
+     </div>`
+  );
+}
+
+
+// ===== LOCAL HISTORY SAVE (append) =====
+try{
+  const histKey = "test_results_history";
+  const prev = JSON.parse(localStorage.getItem(histKey) || "[]");
+  prev.push({
+    test_code: PLAY.code,
+    total_time_sec: TOTAL_TIME_SEC,
+    question_times: QUESTION_TIMES,
+    chosen: PLAY.chosen,
+    key: PLAY.key,
+    date: new Date().toISOString()
+  });
+  localStorage.setItem(histKey, JSON.stringify(prev));
+}catch(e){ console.warn("Local save error", e); }
+
+
+// === Detailed time report UI ===
+const wrap = document.getElementById("detailWrap");
+if(wrap){
+  let rows = "";
+  for(let i=0;i<PLAY.count;i++){
+    const chosen = PLAY.chosen[i] || "-";
+    const correct = PLAY.key[i];
+    const ok = chosen===correct;
+    const t = QUESTION_TIMES[i] || "0";
+    rows += `<tr>
+      <td>${i+1}</td>
+      <td>${t}s</td>
+      <td>${chosen}</td>
+      <td>${correct}</td>
+      <td>${ok?'✔':'❌'}</td>
+    </tr>`;
+  }
+
+  wrap.insertAdjacentHTML("afterbegin",
+    `<div class="item">
+      <div class="item-title">⏱ Har bir savol bo‘yicha vaqt tahlili</div>
+      <div class="tablewrap">
+        <table>
+          <tr><th>Savol</th><th>Vaqt</th><th>Tanlov</th><th>To‘g‘ri</th><th>Holat</th></tr>
+          ${rows}
+        </table>
+      </div>
+    </div>`
+  );
+}
   haptic("medium");
   // Avtomatik nusxa + Telegram ochish o‘chirildi: faqat "Nusxa olish" tugmasi orqali.
 }
@@ -2283,75 +2415,148 @@ document.addEventListener("click", function(e){
     panel.textContent = "Javob kaliti: " + arr;
   }
 });
+</script>
 
-/* ===== MY STATS + AI ADVICE ===== */
-document.getElementById("btnMyStats")?.addEventListener("click", async ()=>{
-  if(!SESSION.login) return;
 
-  const tests = await allTests();
-  let myStats = [];
+<!-- ===== TIMER + ANALYTICS INTEGRATION ===== -->
+<div id="globalTimer" style="position:fixed;top:12px;right:18px;z-index:9999;
+font-weight:900;font-size:18px;padding:6px 12px;border-radius:12px;
+background:rgba(0,0,0,.75);color:#fff;display:none;">
+⏱ 00:00
+</div>
 
-  for(const t of tests){
-    const st = await getStat(t.code, SESSION.login);
-    if(st.attempts>0){
-      const total = (Number(st.correctTotal||0)+Number(st.wrongTotal||0));
-      const acc = total ? Math.round((Number(st.correctTotal||0)/total)*100) : 0;
-      myStats.push({
-        name:t.name,
-        code:t.code,
-        attempts:st.attempts,
-        correct:st.correctTotal||0,
-        wrong:st.wrongTotal||0,
-        acc
-      });
+<script>
+(function(){
+  let TEST_START_TIME = 0;
+  let QUESTION_START_TIME = 0;
+  let TIMER_INTERVAL = null;
+  let QUESTION_TIMES = [];
+  let TOTAL_TIME_SEC = 0;
+
+  function showTimer(){ document.getElementById("globalTimer").style.display="block"; }
+
+  function startTimer(count){
+    showTimer();
+    TEST_START_TIME = Date.now();
+    QUESTION_START_TIME = Date.now();
+    QUESTION_TIMES = new Array(count||0).fill(0);
+
+    clearInterval(TIMER_INTERVAL);
+    TIMER_INTERVAL = setInterval(()=>{
+      const diff = Math.floor((Date.now()-TEST_START_TIME)/1000);
+      const m = String(Math.floor(diff/60)).padStart(2,"0");
+      const s = String(diff%60).padStart(2,"0");
+      document.getElementById("globalTimer").textContent = "⏱ "+m+":"+s;
+    },1000);
+  }
+
+  function saveQuestionTime(i){
+    if(typeof i==="number"){
+      const spent = (Date.now()-QUESTION_START_TIME)/1000;
+      QUESTION_TIMES[i] = spent.toFixed(2);
+      QUESTION_START_TIME = Date.now();
     }
   }
 
-  if(!myStats.length){
-    el.testsList.innerHTML = `
-      <div class="item">
-        <div class="item-title">Statistika yo‘q</div>
-        <div class="item-meta">Siz hali test ishlamagansiz.</div>
-      </div>`;
-    return;
+  function stopTimer(){
+    clearInterval(TIMER_INTERVAL);
+    TOTAL_TIME_SEC = (Date.now()-TEST_START_TIME)/1000;
   }
 
-  // AI maslahat (eng ko‘p xato testlar)
-  const weak = [...myStats].sort((a,b)=>b.wrong-a.wrong).slice(0,3);
-  let advice = weak.length
-    ? "Takrorlash kerak: " + weak.map(w=>w.name).join(", ")
-    : "Natijalar yaxshi. Davom eting!";
+  // Patch existing functions safely
+  const wait = setInterval(()=>{
+    if(window.startTest && window.choose && window.finishTest){
+      clearInterval(wait);
 
-  let html = `
-    <div class="item">
-      <div class="item-title">📊 Mening umumiy statistikam</div>
-      <div class="item-meta">Ishlangan testlar: <b>${myStats.length}</b></div>
-    </div>
+      const origStart = window.startTest;
+      window.startTest = function(...a){
+        try{ startTimer((window.PLAY&&PLAY.count)||0); }catch(e){}
+        return origStart.apply(this,a);
+      };
 
-    <div class="item">
-      <div class="item-title">🤖 AI maslahat</div>
-      <div class="item-meta">${advice}</div>
-    </div>
-  `;
+      const origChoose = window.choose;
+      window.choose = function(i,v){
+        try{ saveQuestionTime(i); }catch(e){}
+        return origChoose.apply(this,arguments);
+      };
 
-  myStats.forEach(s=>{
-    html += `
-      <div class="item">
-        <div class="item-title">${s.name}</div>
-        <div class="item-meta">
-          Kod: <b>${s.code}</b> |
-          Urinish: <b>${s.attempts}</b> |
-          To‘g‘ri: <b>${s.correct}</b> |
-          Xato: <b>${s.wrong}</b> |
-          Aniqlik: <b>${s.acc}%</b>
-        </div>
-      </div>`;
-  });
+      const origFinish = window.finishTest;
+      window.finishTest = function(...a){
+        try{ stopTimer(); }catch(e){}
+        return origFinish.apply(this,a);
+      };
+    }
+  },200);
 
-  el.testsList.innerHTML = html;
-});
+  // PDF report
+  window.downloadAnalyticsPDF = function(){
+    if(!window.jspdf){ alert("jsPDF yuklanmagan"); return; }
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF();
+    pdf.setFontSize(16);
+    pdf.text("Test Analytics Hisoboti",20,20);
+    pdf.setFontSize(12);
+    pdf.text("Umumiy vaqt: "+TOTAL_TIME_SEC.toFixed(1)+" s",20,35);
 
+    let y=50;
+    pdf.text("Savollar bo‘yicha vaqt:",20,y); y+=10;
+    QUESTION_TIMES.forEach((t,i)=>{
+      pdf.text("Savol "+(i+1)+": "+t+" s",20,y);
+      y+=8; if(y>270){ pdf.addPage(); y=20; }
+    });
+    pdf.save("analytics_hisobot.pdf");
+  };
+})();
 </script>
+
+
+<!-- TIMER UI -->
+<div id="globalTimer" style="position:fixed;top:12px;right:18px;z-index:9999;
+font-weight:900;font-size:18px;padding:6px 12px;border-radius:12px;
+background:rgba(0,0,0,.75);color:#fff;display:none;">
+⏱ 00:00
+</div>
+
+<script>
+function downloadFullReport(){
+  if(!window.jspdf){ alert("jsPDF yuklanmagan"); return; }
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF();
+
+  pdf.setFontSize(18);
+  pdf.text("TEST HISOBOTI", 20, 20);
+
+  pdf.setFontSize(12);
+  pdf.text("Umumiy vaqt: " + TOTAL_TIME_SEC.toFixed(1) + " s", 20, 35);
+
+  let y = 50;
+  pdf.text("Savollar bo‘yicha tahlil:", 20, y);
+  y += 10;
+
+  for(let i=0;i<PLAY.count;i++){
+    const chosen = PLAY.chosen[i] || "-";
+    const correct = PLAY.key[i];
+    const ok = chosen===correct ? "To‘g‘ri" : "Xato";
+    const time = QUESTION_TIMES[i] || "0";
+
+    pdf.text(
+      (i+1)+"-savol | vaqt: "+time+"s | tanlov: "+chosen+" | to‘g‘ri: "+correct+" | "+ok,
+      20, y
+    );
+    y+=8;
+    if(y>270){ pdf.addPage(); y=20; }
+  }
+
+  pdf.save("test_hisobot.pdf");
+}
+</script>
+
+
+<div id="questionTimer" style="position:fixed;top:48px;right:18px;z-index:9999;
+font-weight:800;font-size:16px;padding:4px 10px;border-radius:10px;
+background:rgba(0,0,0,.55);color:#fff;display:none;">
+Savol 1: 00:00
+</div>
 
 </body>
 </html>
