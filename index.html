@@ -1509,9 +1509,8 @@ let QUESTION_TIMER_INTERVAL = null;
 function startQuestionTimer(qIndex){
   CURRENT_Q_START_TIME = Date.now();
   const qTimer = document.getElementById("questionTimer");
-  if(qTimer){
-    qTimer.style.display = "block";
-  }
+  if(qTimer) qTimer.style.display = "block";
+
   clearInterval(QUESTION_TIMER_INTERVAL);
   QUESTION_TIMER_INTERVAL = setInterval(()=>{
     const diff = Math.floor((Date.now()-CURRENT_Q_START_TIME)/1000);
@@ -1635,7 +1634,7 @@ function setFocus(i){
 }
 
 function choose(i, v){
-  startQuestionTimer(i);
+  startQuestionTimer(i+1);
   saveQuestionTime(i);
   PLAY.chosen[i] = v;
   const row = $("q_"+i);
@@ -1695,7 +1694,6 @@ async function finishTest(){
     return; // continue counting if user cancels
   }
   stopTimer();
-  const _qt=document.getElementById('questionTimer'); if(_qt) _qt.style.display='none';
   const _gt=document.getElementById('globalTimer'); if(_gt) _gt.style.display='none';
   if(PLAY.chosen.some(x=>x==null)){
     if(!confirm("Baʼzi savollar belgilanmagan. Baribir yakunlaysizmi?")) return;
@@ -2549,14 +2547,140 @@ function downloadFullReport(){
 
   pdf.save("test_hisobot.pdf");
 }
+
+// ===== TIMER PATCH: milliseconds + full stop + safe finish override =====
+
+// Override startTimer to include milliseconds
+startTimer = function(count){
+  TEST_START_TIME = Date.now();
+  QUESTION_START_TIME = Date.now();
+  QUESTION_TIMES = new Array(count||0).fill(0);
+
+  const timerBox = document.getElementById("globalTimer");
+  if(timerBox) timerBox.style.display = "block";
+
+  if(TIMER_INTERVAL) clearInterval(TIMER_INTERVAL);
+
+  TIMER_INTERVAL = setInterval(()=>{
+    const diff = Date.now()-TEST_START_TIME;
+    const totalSec = Math.floor(diff/1000);
+    const ms = String(Math.floor((diff%1000)/10)).padStart(2,"0");
+    const m = String(Math.floor(totalSec/60)).padStart(2,"0");
+    const s = String(totalSec%60).padStart(2,"0");
+
+    if(timerBox){
+      timerBox.textContent = "⏱ "+m+":"+s+"."+ms;
+    }
+  },100);
+};
+
+// Override stopTimer to fully clear intervals
+stopTimer = function(){
+  if(TIMER_INTERVAL){
+    clearInterval(TIMER_INTERVAL);
+    TIMER_INTERVAL = null;
+  }
+  if(QUESTION_TIMER_INTERVAL){
+    clearInterval(QUESTION_TIMER_INTERVAL);
+    QUESTION_TIMER_INTERVAL = null;
+  }
+  TOTAL_TIME_SEC = (Date.now()-TEST_START_TIME)/1000;
+  const timerBox = document.getElementById("globalTimer");
+  if(timerBox) timerBox.style.display = "none";
+};
+
+// Ensure finishTest always stops timer first
+if(typeof finishTest === "function"){
+  const __origFinish = finishTest;
+  finishTest = async function(){
+    stopTimer();
+    return await __origFinish.apply(this, arguments);
+  };
+}
+
+// Improve question timer with milliseconds
+startQuestionTimer = function(qIndex){
+  CURRENT_Q_START_TIME = Date.now();
+  const qTimer = document.getElementById("questionTimer");
+  if(qTimer) qTimer.style.display = "block";
+
+  if(QUESTION_TIMER_INTERVAL) clearInterval(QUESTION_TIMER_INTERVAL);
+
+  QUESTION_TIMER_INTERVAL = setInterval(()=>{
+    const diff = Date.now()-CURRENT_Q_START_TIME;
+    const totalSec = Math.floor(diff/1000);
+    const ms = String(Math.floor((diff%1000)/10)).padStart(2,"0");
+    const m = String(Math.floor(totalSec/60)).padStart(2,"0");
+    const s = String(totalSec%60).padStart(2,"0");
+    if(qTimer){
+      qTimer.textContent = "Savol "+qIndex+": "+m+":"+s+"."+ms;
+    }
+  },100);
+};
+
 </script>
 
 
-<div id="questionTimer" style="position:fixed;top:48px;right:18px;z-index:9999;
-font-weight:800;font-size:16px;padding:4px 10px;border-radius:10px;
-background:rgba(0,0,0,.55);color:#fff;display:none;">
+<div id="questionTimer" style="position:fixed;top:70px;right:18px;z-index:9999;
+font-weight:900;font-size:16px;padding:4px 10px;border-radius:10px;
+background:rgba(200,0,0,.85);color:#fff;display:none;">
 Savol 1: 00:00
 </div>
+
+
+<button onclick="window.scrollTo({top:0,behavior:'smooth'})"
+style="position:fixed;bottom:20px;left:20px;z-index:9999;
+background:#111;color:#fff;border:none;border-radius:50%;
+width:44px;height:44px;font-size:20px;cursor:pointer;">
+↑
+</button>
+
+
+<script>
+// ===== FULL HARD TIMER STOP PATCH =====
+(function(){
+  window.hardStopTimers = function(){
+    try{
+      if(window.TIMER_INTERVAL){
+        clearInterval(window.TIMER_INTERVAL);
+        window.TIMER_INTERVAL = null;
+      }
+      if(window.QUESTION_TIMER_INTERVAL){
+        clearInterval(window.QUESTION_TIMER_INTERVAL);
+        window.QUESTION_TIMER_INTERVAL = null;
+      }
+      var gt = document.getElementById("globalTimer");
+      if(gt) gt.style.display = "none";
+      var qt = document.getElementById("questionTimer");
+      if(qt) qt.style.display = "none";
+    }catch(e){ console.warn("hardStopTimers error", e); }
+  };
+
+  // Override finishTest to fully stop both timers
+  const origFinish = window.finishTest;
+  if(typeof origFinish === "function"){
+    window.finishTest = async function(){
+      if(!confirm("Testni yakunlaysizmi?")){
+        return; // davom etadi
+      }
+      window.hardStopTimers();
+      return await origFinish.apply(this, arguments);
+    };
+  }
+
+  // Back buttons -> also stop timers
+  document.addEventListener("DOMContentLoaded", function(){
+    var b1 = document.getElementById("btnBack1");
+    var b2 = document.getElementById("btnBack2");
+    if(b1){
+      b1.addEventListener("click", function(){ window.hardStopTimers(); });
+    }
+    if(b2){
+      b2.addEventListener("click", function(){ window.hardStopTimers(); });
+    }
+  });
+})();
+</script>
 
 </body>
 </html>
