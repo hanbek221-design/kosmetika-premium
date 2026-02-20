@@ -2636,83 +2636,17 @@ width:44px;height:44px;font-size:20px;cursor:pointer;">
 </button>
 
 
-<!-- ======================================
-FINAL STRICT TIMER SYSTEM (INTEGRATED)
-- Global stop => question timer ham stop
-- Savol vaqtlar doimiy localStorage’da
-- Natijalarda doim ko‘rinadi
-- Yangi test boshlansa yangilanadi
-====================================== -->
+<!-- =======================================
+FINAL FULL PATCH:
+- Global + Question timer strict stop on Finish OK
+- Timers hidden completely
+- Copy includes: Test name, Test code (separate lines), per-question times, total time
+======================================= -->
 <script>
 (function(){
 
-  const LS_Q = "tm_last_question_times";
-  const LS_T = "tm_last_total_time";
-  let GLOBAL_STOP = false;
-
-  function hideTimers(){
-    document.getElementById("globalTimer")?.style.display="none";
-    document.getElementById("questionTimer")?.style.display="none";
-  }
-
-  function saveAllTimes(){
-    try{
-      if(window.QUESTION_TIMES){
-        localStorage.setItem(LS_Q, JSON.stringify(window.QUESTION_TIMES));
-      }
-      if(window.TOTAL_TIME_SEC){
-        localStorage.setItem(LS_T, String(window.TOTAL_TIME_SEC));
-      }
-    }catch(e){}
-  }
-
-  function loadAllTimes(){
-    try{
-      const q = localStorage.getItem(LS_Q);
-      const t = localStorage.getItem(LS_T);
-      if(q && window.QUESTION_TIMES){
-        const arr = JSON.parse(q);
-        if(Array.isArray(arr)) window.QUESTION_TIMES = arr;
-      }
-      if(t){
-        window.TOTAL_TIME_SEC = Number(t);
-      }
-    }catch(e){}
-  }
-
-  // START TIMER override
-  const _origStartTimer = window.startTimer;
-  if(typeof _origStartTimer === "function"){
-    window.startTimer = function(count){
-      GLOBAL_STOP = false;
-      _origStartTimer(count);
-      loadAllTimes();
-      hideTimers();
-    };
-  }
-
-  // QUESTION TIMER override
-  const _origStartQ = window.startQuestionTimer;
-  if(typeof _origStartQ === "function"){
-    window.startQuestionTimer = function(qIndex){
-      if(GLOBAL_STOP) return;
-      _origStartQ(qIndex);
-      hideTimers();
-    };
-  }
-
-  // SAVE QUESTION TIME override
-  const _origSave = window.saveQuestionTime;
-  if(typeof _origSave === "function"){
-    window.saveQuestionTime = function(i){
-      _origSave(i);
-      saveAllTimes();
-    };
-  }
-
-  // HARD STOP (qat’iy)
-  window.hardStopTimers = function(){
-    GLOBAL_STOP = true;
+  // ---- Stop all timers and hide UI ----
+  function stopAllTimers(){
     try{
       if(window.TIMER_INTERVAL){
         clearInterval(window.TIMER_INTERVAL);
@@ -2722,27 +2656,262 @@ FINAL STRICT TIMER SYSTEM (INTEGRATED)
         clearInterval(window.QUESTION_TIMER_INTERVAL);
         window.QUESTION_TIMER_INTERVAL = null;
       }
+      const gt = document.getElementById("globalTimer");
+      if(gt){ gt.style.display="none"; gt.textContent=""; }
+      const qt = document.getElementById("questionTimer");
+      if(qt){ qt.style.display="none"; qt.textContent=""; }
     }catch(e){}
-    hideTimers();
-    saveAllTimes();
-  };
+  }
 
-  // finishTest override
-  const _origFinish = window.finishTest;
-  if(typeof _origFinish === "function"){
-    window.finishTest = async function(){
-      if(!confirm("Testni yakunlaysizmi?")) return;
-      window.hardStopTimers();
-      return await _origFinish.apply(this, arguments);
+  // ---- Get test name + code ----
+  function getTestNameAndCode(){
+    let name="", code="";
+    if(window.PLAY){
+      name = window.PLAY.name || "";
+      code = window.PLAY.code || "";
+    }
+    return {name,code};
+  }
+
+  // ---- Extract table times + compute total ----
+  function extractTimeTable(){
+    const table=document.querySelector(".tablewrap table");
+    if(!table) return null;
+
+    const rows=[...table.querySelectorAll("tr")].slice(1);
+    if(!rows.length) return null;
+
+    const {name,code}=getTestNameAndCode();
+
+    let lines=[];
+    let totalCalc=0;
+
+    lines.push("⏱ Har bir savol bo‘yicha vaqt tahlili:");
+    if(name) lines.push(`🧪 Test: ${name}`);
+    if(code) lines.push(`🔑 Kod: ${code}`);
+    lines.push("");
+
+    rows.forEach(row=>{
+      const cells=row.querySelectorAll("td");
+      if(cells.length>=2){
+        const savol=cells[0].innerText.trim();
+        const vaqt=cells[1].innerText.trim();
+        lines.push(`${savol}-savol — ${vaqt}`);
+
+        const sec=parseFloat(vaqt.replace("s",""));
+        if(!isNaN(sec)) totalCalc+=sec;
+      }
+    });
+
+    let total;
+    if(window.TOTAL_TIME_SEC && !isNaN(window.TOTAL_TIME_SEC)){
+      total=Number(window.TOTAL_TIME_SEC).toFixed(2)+" s";
+    }else{
+      total=totalCalc.toFixed(2)+" s";
+    }
+
+    lines.push("");
+    lines.push(`🕒 Umumiy vaqt: ${total}`);
+
+    return lines.join("\n");
+  }
+
+  // ---- Copy handler ----
+  async function copyTimeAnalysis(){
+    const text=extractTimeTable();
+    if(!text){
+      alert("Vaqt jadvali topilmadi.");
+      return;
+    }
+    try{
+      await navigator.clipboard.writeText(text);
+      stopAllTimers();
+      alert("Test nomi + kodi + barcha vaqtlar nusxa olindi.");
+    }catch(e){
+      prompt("Qo‘lda nusxa oling:", text);
+    }
+  }
+
+  // ---- Add copy button automatically ----
+  const observer=new MutationObserver(()=>{
+    const title=[...document.querySelectorAll(".item-title")]
+      .find(el=>el.textContent && el.textContent.toLowerCase().includes("vaqt tahlili"));
+    if(!title) return;
+
+    if(document.getElementById("btnCopyTimeAnalysis")) return;
+
+    const btn=document.createElement("button");
+    btn.id="btnCopyTimeAnalysis";
+    btn.textContent="📋 Copy vaqt + test kodi + nomi";
+    btn.style.margin="10px 0";
+    btn.style.padding="8px 14px";
+    btn.style.borderRadius="10px";
+    btn.style.border="none";
+    btn.style.background="#111";
+    btn.style.color="#fff";
+    btn.style.cursor="pointer";
+    btn.onclick=copyTimeAnalysis;
+
+    title.parentElement.insertBefore(btn,title.nextSibling);
+  });
+
+  observer.observe(document.body,{childList:true,subtree:true});
+
+  // ---- FinishTest override: stop all timers on OK ----
+  const __origFinishTest=window.finishTest;
+  if(typeof __origFinishTest==="function"){
+    window.finishTest=async function(){
+      const ok=confirm("Testni yakunlaysizmi?");
+      if(!ok) return;
+      stopAllTimers();
+      return await __origFinishTest.apply(this,arguments);
     };
   }
 
-  // Back bosilganda ham stop
-  document.addEventListener("click", (e)=>{
+  // ---- Back buttons also stop timers ----
+  document.addEventListener("click", function(e){
     if(e.target && (e.target.id==="btnBack1" || e.target.id==="btnBack2")){
-      window.hardStopTimers();
+      stopAllTimers();
     }
   });
+
+})();
+</script>
+
+
+<!-- ===== CENTER QUESTION TIMER + COPY WITH TEST NAME ===== -->
+<style>
+#questionTimer{
+  position: fixed !important;
+  top: 70px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  right: auto !important;
+  z-index: 9999 !important;
+}
+</style>
+
+<script>
+(function(){
+
+  function getTestName(){
+    if(window.CURRENT_TEST && CURRENT_TEST.name){
+      return CURRENT_TEST.name;
+    }
+    if(window.PLAY && PLAY.name){
+      return PLAY.name;
+    }
+    const title = document.querySelector(".item-title, h1, h2");
+    if(title) return title.textContent.trim();
+    return "";
+  }
+
+  function stopAllTimers(){
+    try{
+      if(window.TIMER_INTERVAL){
+        clearInterval(window.TIMER_INTERVAL);
+        window.TIMER_INTERVAL = null;
+      }
+      if(window.QUESTION_TIMER_INTERVAL){
+        clearInterval(window.QUESTION_TIMER_INTERVAL);
+        window.QUESTION_TIMER_INTERVAL = null;
+      }
+      document.getElementById("globalTimer")?.style.display="none";
+      document.getElementById("questionTimer")?.style.display="none";
+    }catch(e){}
+  }
+
+  function extractTimeTable(){
+    const table=document.querySelector(".tablewrap table");
+    if(!table) return null;
+
+    const rows=[...table.querySelectorAll("tr")].slice(1);
+    if(!rows.length) return null;
+
+    const testName = getTestName();
+    const code = window.PLAY?.code || "";
+
+    let lines=[];
+    let totalCalc=0;
+
+    lines.push("⏱ Har bir savol bo‘yicha vaqt tahlili:");
+    if(testName) lines.push("📘 Test nomi: " + testName);
+    if(code) lines.push("🔑 Test kodi: " + code);
+    lines.push("");
+
+    rows.forEach(row=>{
+      const cells=row.querySelectorAll("td");
+      if(cells.length>=2){
+        const savol=cells[0].innerText.trim();
+        const vaqt=cells[1].innerText.trim();
+        lines.push(`${savol}-savol — ${vaqt}`);
+
+        const sec=parseFloat(vaqt.replace("s",""));
+        if(!isNaN(sec)) totalCalc+=sec;
+      }
+    });
+
+    let total;
+    if(window.TOTAL_TIME_SEC && !isNaN(window.TOTAL_TIME_SEC)){
+      total = Number(window.TOTAL_TIME_SEC).toFixed(2)+" s";
+    }else{
+      total = totalCalc.toFixed(2)+" s";
+    }
+
+    lines.push("");
+    lines.push("🕒 Umumiy vaqt: " + total);
+
+    return lines.join("\n");
+  }
+
+  async function copyTimeAnalysis(){
+    const text=extractTimeTable();
+    if(!text){
+      alert("Vaqt jadvali topilmadi.");
+      return;
+    }
+    try{
+      await navigator.clipboard.writeText(text);
+      stopAllTimers();
+      alert("Test nomi + vaqtlar nusxa olindi.");
+    }catch(e){
+      prompt("Qo‘lda nusxa oling:", text);
+    }
+  }
+
+  const observer=new MutationObserver(()=>{
+    const title=[...document.querySelectorAll(".item-title")]
+      .find(el=>el.textContent.toLowerCase().includes("vaqt tahlili"));
+    if(!title) return;
+
+    if(document.getElementById("btnCopyTimeAnalysis")) return;
+
+    const btn=document.createElement("button");
+    btn.id="btnCopyTimeAnalysis";
+    btn.textContent="📋 Copy vaqt + test nomi";
+    btn.style.margin="10px 0";
+    btn.style.padding="8px 14px";
+    btn.style.borderRadius="10px";
+    btn.style.border="none";
+    btn.style.background="#111";
+    btn.style.color="#fff";
+    btn.style.cursor="pointer";
+    btn.onclick=copyTimeAnalysis;
+
+    title.parentElement.insertBefore(btn,title.nextSibling);
+  });
+
+  observer.observe(document.body,{childList:true,subtree:true});
+
+  if(typeof finishTest==="function"){
+    const __origFinish=finishTest;
+    window.finishTest=async function(){
+      const ok=confirm("Testni yakunlaysizmi?");
+      if(!ok) return;
+      stopAllTimers();
+      return await __origFinish.apply(this,arguments);
+    };
+  }
 
 })();
 </script>
